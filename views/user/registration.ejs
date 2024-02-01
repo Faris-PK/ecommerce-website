@@ -1,0 +1,163 @@
+<%-include('../layouts/header.ejs')%>
+<%-include('../layouts/navbar.ejs')%>
+<div class="page-wrapper">
+    <main class="main">
+        <div class="login-page bg-image pt-8 pb-8 pt-md-12 pb-md-12 pt-lg-17 pb-lg-17" style="background-image: url('assets/images/backgrounds/login-bg3.jpg')">
+            <div class="container">
+                <div class="form-box">
+                    <div class="form-tab">
+                        <ul class="nav nav-pills nav-fill" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="register-tab-2" data-toggle="tab" href="#register-2" role="tab" aria-controls="register-2" aria-selected="true">Register</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="register-2" role="tabpanel" aria-labelledby="register-tab-2">
+                                <form method="post" action="/register" onsubmit="return validateForm()">
+                                    <div class="flash-messages">
+                                        <%= locals.message %>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="register-first-name-2">Full Name *</label>
+                                        <input type="text" class="form-control" id="register-first-name-2" name="name" required>
+                                    </div><!-- End .form-group -->
+
+                                    <div class="form-group">
+                                        <label for="register-email-2">Your email address *</label>
+                                        <input type="email" class="form-control" id="register-email-2" name="email" required>
+                                    </div><!-- End .form-group -->
+
+                                    <div class="form-group">
+                                        <label for="register-mobile">Your Mobile Number *</label>
+                                        <input type="text" class="form-control" id="register-mobile" name="mobile" required>
+                                    </div><!-- End .form-group -->
+
+                                    <div class="form-group">
+                                        <label for="register-password-2">Password *</label>
+                                        <input type="password" class="form-control" id="register-password-2" name="password" required>
+                                    </div> <!-- End .form-group -->
+
+                                    <div class="form-group">
+                                        <label for="register-confirmpassword-2">Confirm Password *</label>
+                                        <input type="password" class="form-control" id="register-confirmpassword-2" name="confirmPassword" required>
+                                    </div> <!-- End .form-group -->
+
+                                    <div class="form-footer">
+                                        <button type="submit" class="btn btn-outline-primary-2">
+                                            <span>SIGN UP</span>
+                                            <i class="icon-long-arrow-right"></i>
+                                        </button>
+                                        <div class="form-footer">
+                                            <p>Already have an account? <a href="/login">Login</a></p>
+                                        </div><!-- End .form-footer -->
+                                    </div><!-- End .form-footer -->
+                                </form>
+                            </div><!-- .End .tab-pane -->
+                        </div><!-- End .tab-content -->
+                    </div><!-- End .form-tab -->
+                </div><!-- End .form-box -->
+            </div><!-- End .container -->
+        </div><!-- End .login-page section-bg -->
+    </main><!-- End .main -->
+</div><!-- End .page-wrapper -->
+<button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button>
+<style>
+    .flash-messages {
+    color: red; 
+}
+</style>
+<script>
+    function validateForm() {
+        // Reset previous validation messages
+        clearValidationMessages();
+
+        var firstNameInput = document.getElementById('register-first-name-2');
+        var emailInput = document.getElementById('register-email-2');
+        var mobileInput = document.getElementById('register-mobile');
+        var passwordInput = document.getElementById('register-password-2');
+        var confirmPasswordInput = document.getElementById('register-confirmpassword-2');
+
+        // Validate first name
+        if (!validateNoSpaces(firstNameInput.value)) {
+            displayValidationMessage('First Name cannot contain blank spaces.', 'register-first-name-2');
+            return false;
+        }
+
+        // Validate email format
+        var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+        if (!emailRegex.test(emailInput.value)) {
+            displayValidationMessage('Invalid email format. Please enter a valid email.', 'register-email-2');
+            return false;
+        }
+
+        // Validate mobile number format
+        if (!validateNumericOnly(mobileInput.value)) {
+            displayValidationMessage('Mobile should contain only numeric digits.', 'register-mobile');
+            return false;
+        }
+
+        // Validate mobile number length
+        if (mobileInput.value.length < 10) {
+            displayValidationMessage('Mobile number should be at least 10 digits.', 'register-mobile');
+            return false;
+        }
+
+        // Validate password
+        if (!validateNoSpaces(passwordInput.value)) {
+            displayValidationMessage('Password cannot contain blank spaces.', 'register-password-2');
+            return false;
+        }
+
+        // Validate confirm password
+        if (!validateNoSpaces(confirmPasswordInput.value)) {
+            displayValidationMessage('Confirm Password cannot contain blank spaces.', 'register-confirmpassword-2');
+            return false;
+        }
+
+        // Validate password and confirm password match
+        if (passwordInput.value !== confirmPasswordInput.value) {
+            displayValidationMessage('Password and Confirm Password should be the same.', 'register-confirmpassword-2');
+            return false;
+        }
+
+        // Allow form submission if all validations pass
+        return true;
+    }
+
+    function validateNoSpaces(inputValue) {
+        // Use a regular expression to check for spaces
+        var spaceRegex = /\s/;
+        return !spaceRegex.test(inputValue);
+    }
+
+    function validateNumericOnly(inputValue) {
+        // Use a regular expression to check for numeric characters only
+        var numericRegex = /^\d+$/;
+        return numericRegex.test(inputValue);
+    }
+
+    function displayValidationMessage(message, inputId) {
+        var inputField = document.getElementById(inputId);
+        var messageDiv = document.createElement('div');
+        messageDiv.classList.add('text-red', 'small-text'); // You can add styling classes here
+        messageDiv.textContent = message;
+
+        // Insert the message div below the input field
+        inputField.parentNode.insertBefore(messageDiv, inputField.nextSibling);
+
+        // Remove the message when the user starts typing in the input field
+        inputField.addEventListener('input', function () {
+            messageDiv.remove();
+        });
+    }
+
+    function clearValidationMessages() {
+        var validationMessages = document.querySelectorAll('.text-red');
+        validationMessages.forEach(function (message) {
+            message.remove();
+        });
+    }
+</script>
+
+
+<%-include('../layouts/footer.ejs')%>
