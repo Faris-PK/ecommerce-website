@@ -17,6 +17,10 @@ const user = mongoose.Schema({
         type:String,
         required:true
     },
+    dateJoined:{
+        type:Date,
+        default:Date.now
+    },
     is_admin:{
         type:Number,
         required:true
@@ -28,7 +32,27 @@ const user = mongoose.Schema({
     is_verified :{
         type : Boolean,
         default:false
-      }
+    },
+    address:[{
+        name:{
+            type:String,
+        },
+        housename:{
+            type:String,
+        },
+        street:{
+            type:String,
+        },
+        city:{
+            type:String,
+        },
+        pin:{
+            type:Number  
+        },
+        mobile:{
+            type:Number
+        }
+    }]
 })
 
 const User = mongoose.model("User",user);

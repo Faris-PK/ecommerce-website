@@ -1,0 +1,122 @@
+<%-include('../layouts/adminHeader.ejs')%>
+<%-include('../layouts/adminSidebar.ejs')%>
+
+<!-- ============================================================== -->
+        <!-- Page wrapper  -->
+        <!-- ============================================================== -->
+        <div class="page-wrapper">
+            <!-- ============================================================== -->
+            <!-- Container fluid  -->
+            <!-- ============================================================== -->
+            <div class="container-fluid">
+                <!-- ============================================================== -->
+                <!-- Start Page Content -->
+                <!-- ============================================================== -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">Customer Details</h4>
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">ID</th>
+                                                <th scope="col">Name</th>
+                                                <th scope="col">Mobile</th>
+                                                <th scope="col">Email</th>
+                                                <th scope="col">Date Joined</th>
+                                                <th scope="col">Verified</th>
+                                                <th scope="col">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% if (Array.isArray(users) && users.length > 0) { %>
+                                                <% users.forEach(function(user, index) { %>
+                                                    <tr>
+                                                        <td><%= index + 1 %></td>
+                                                        <td><%= user.name %></td>
+                                                        <td><%= user.mobile %></td>
+                                                        <td><%= user.email %></td>
+                                                        <td><%= user.dateJoined.toLocaleDateString() %></td>
+                                                        <% if (user.is_verified) { %>
+                                                            <td><i class="fas fa-check verified-icon" style="color: green;"></i></td>
+                                                        <% } else { %>
+                                                            <td><i class="fas fa-times unverified-icon" style="color: red;"></i></td>
+                                                        <% } %>
+                                                        
+                                                        <td>
+                                                            <a href="#" class="btn-status-toggle" data-userid="<%= user._id %>">
+                                                                <% if (user.is_blocked) { %>
+                                                                    <span class="badge badge-danger">Blocked</span>
+                                                                <% } else { %>
+                                                                    <span class="badge badge-success">Active</span>
+                                                                <% } %>
+                                                            </a>                                           
+                                                        </td>
+                                                    </tr>
+                                                <% }); %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="3">No users available</td>
+                                                </tr>
+                                            <% } %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+            
+        </div>
+        <!-- ============================================================== -->
+        <!-- End Page wrapper  -->
+        <!-- ============================================================== -->
+    </div>
+    <!-- ============================================================== -->
+    <!-- End Wrapper -->
+    <!-- ============================================================== -->
+    <!-- End Wrapper -->
+    <!-- ============================================================== -->
+
+    <!-- FOR BLOCKING AND UNBLOCKING -->
+    <!-- FOR BLOCKING AND UNBLOCKING -->
+<script>
+    $(document).ready(function() {
+        $('.btn-status-toggle').on('click', function() {
+            const button = $(this);
+            const userId = button.data('userid');
+            toggleUserStatus(userId, button);
+            console.log("script toggle top");
+        });
+
+        function toggleUserStatus(userId, button) {
+            $.ajax({
+                type: 'POST',
+                url: `/admin/toggle_user_status/${userId}`,
+                success: function(response) {
+                    console.log(response);
+                    // Update UI based on the server response
+                    if (response.success) {
+                        updateUI(button, response.isBlocked);
+                    } else {
+                        console.error('Error toggling user status:', response.message);
+                    }
+                },
+                error: function(error) {
+                    console.error('Error toggling user status:', error);
+                }
+            });
+        }
+
+        function updateUI(button, isBlocked) {
+            // Update the button text and icon based on the new status
+            if (isBlocked) {
+                button.find('.badge').removeClass('badge-success').addClass('badge-danger').text('Blocked');
+            } else {
+                button.find('.badge').removeClass('badge-danger').addClass('badge-success').text('Active');
+            }
+        }
+    });
+</script>
+
+
+<%-include('../layouts/adminFooter.ejs')%>

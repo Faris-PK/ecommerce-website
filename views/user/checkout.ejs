@@ -1,0 +1,398 @@
+<%-include('../layouts/header.ejs')%>
+<%-include('../layouts/navbar.ejs')%>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10"></link>
+<style>
+    /* Custom style to set text color to black */
+    #newaddress-modal input {
+        color: black;
+    }
+
+    /* Button customization */
+    .custom-small-button {
+    font-size: 12px; /* Adjust the font size as needed */
+    padding: 5px 10px; /* Adjust the padding as needed */
+}
+</style>
+
+
+<main class="main">
+    <div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
+        <div class="container">
+            <h1 class="page-title">Checkout</h1>
+        </div><!-- End .container -->
+    </div><!-- End .page-header -->
+
+    <div class="page-content">
+        <div class="checkout">
+            <div class="container">
+                <!-- <div class="checkout-discount">
+                    <form action="#">
+                        <input type="text" class="form-control" required id="checkout-discount-input">
+                        <label for="checkout-discount-input" class="text-truncate">Have a coupon? <span>Click here to enter your code</span></label>
+                    </form>
+                </div>End .checkout-discount -->
+                <form action="/placeOrder" method="POST">
+                    <div class="row">
+                        
+                        <div class="col-lg-9">
+                            <br>
+                            <!-- <div class="container" style="display: flex; justify-content: left;">
+                                <h5>Select Address</h5>
+                                <button type="button" class="btn btn-success" data-toggle="modal" 
+                                data-target="#signup-modal">Add Address</button>
+                            </div> -->
+                            <div class="container-fluid" style="display: flex; justify-content: space-between;">
+                                <h5>Select Address</h5>
+                                <!-- <button type="button" class="btn btn-success" data-toggle="modal" data-target="#newaddress-modal">
+                                    Add New Address
+                                </button> -->
+
+                                <button type="button" class="btn btn-success custom-small-button" data-toggle="modal" data-target="#newaddress-modal">
+                                    Add New Address
+                                </button>
+                            </div>
+
+                            <div class="container-fluid">
+                                <% if (userAddresses && userAddresses.length > 0) { %>
+                                    <% userAddresses.forEach((address, index) => { %>
+                                        <div class="address-card" style="width: 80rem;">
+                                            <div class="card-body" style="display: flex; align-items: center;">
+                                                <!-- <ul class="selection-list" style="margin-right: 1rem;">
+                                                    <li class="<%= index === 0 ? 'selected' : '' %>">
+                                                        <input type="radio" id="addressSelection<%= index %>" name="addressSelection" <%= index === 0 ? 'checked' : '' %>>
+                                                    </li>
+                                                </ul> -->
+                                                <ul class="selection-list" style="margin-right: 1rem;">
+                                                    <li class="<%= index === 0 ? 'selected' : '' %>">
+                                                        <input type="radio" id="addressSelection<%= index %>" name="addressSelection" data-address-id="<%= address._id %>" <%= index === 0 ? 'checked' : '' %>>
+                                                    </li>
+                                                </ul>
+                                                <div>
+                                                    <h5 class="card-title"><%= address.name %></h5>
+                                                    <p class="card-text"><%= address.housename %></p>
+                                                    <p class="card-text"><%= address.street %>, <%= address.city %></p>
+                                                    <p class="card-text">Zip Code: <%= address.pin %></p>
+                                                    <p class="card-text">Mobile: <%= address.mobile %></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <% }); %>
+                                <% } else { %>
+                                    <p>No addresses found. Please add a new address.</p>
+                                <% } %>
+                            </div>
+                            
+                            
+                            <input type="hidden" name="selectedAddress" id="selectedAddress" value="<%= userAddresses && userAddresses.length > 0 ? userAddresses[0]._id : '' %>">
+
+                            <input type="hidden" name="paymentMode" id="paymentMode" value="COD">
+                            
+                        </div><!-- End .col-lg-9 -->
+                        <aside class="col-lg-3">
+                            <div class="summary">
+                                <h3 class="summary-title">Your Order</h3><!-- End .summary-title -->
+
+                                <table class="table table-summary">
+                                    <thead>
+                                        <tr>
+                                            <th>Product</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        <% if (checkoutProduct && checkoutProduct.length > 0) { %>
+                                            <% checkoutProduct.forEach(checkoutItem => { %>
+                                                <% checkoutItem.product.forEach(product => { %>
+                                                    <tr>
+                                                        <td><a href="#"><%= product.productid.name %></a></td>
+                                                        <td>₹<%= product.productid.price %></td>
+                                                    </tr>
+                                                <% }); %>
+                                            <% }); %>
+                                        <% } %>  
+                                    
+                                        <tr>
+                                            <td>Shipping:</td>
+                                            <td>Free shipping</td>
+                                        </tr>
+                                        <tr class="summary-total">
+                                            <td>Total:</td>
+                                            <td>₹<%= grandTotal %></td>
+                                        </tr><!-- End .summary-total -->
+                                                    
+                                    </tbody>
+                                </table><!-- End .table table-summary -->
+
+                                <div class="accordion-summary" id="accordion-payment">
+                                    <!-- <div class="card">
+                                        <div class="card-header" id="heading-1">
+                                            <h2 class="card-title">
+                                                <a role="button" data-toggle="collapse" href="#collapse-1" aria-expanded="true" aria-controls="collapse-1">
+                                                    Direct bank transfer
+                                                </a>
+                                            </h2>
+                                        </div>End .card-header
+                                        <div id="collapse-1" class="collapse show" aria-labelledby="heading-1" data-parent="#accordion-payment">
+                                            <div class="card-body">
+                                                Make your payment directly into our bank account. Please use your Order ID as the payment reference. Your order will not be shipped until the funds have cleared in our account.
+                                            </div>End .card-body
+                                        </div>End .collapse
+                                    </div>End .card -->
+
+                                    
+
+                                    <div class="card">
+                                        <div class="card-header" id="heading-3">
+                                            <h2 class="card-title">
+                                                <a class="collapsed" role="button" data-toggle="collapse" href="#collapse-3" aria-expanded="false" aria-controls="collapse-3">
+                                                    Cash on delivery
+                                                </a>
+                                            </h2>
+                                        </div><!-- End .card-header -->
+                                        <div id="collapse-3" class="collapse" aria-labelledby="heading-3" data-parent="#accordion-payment">
+                                            <div class="card-body">Cash on delivery is a way of buying things online without paying in advance. You only pay with cash when you get the item delivered to your door. 
+                                            </div><!-- End .card-body -->
+                                        </div><!-- End .collapse -->
+                                    </div><!-- End .card -->
+                                </div><!-- End .accordion -->
+                                <% if (locals.errorMessage) { %>
+                                    <div class="error-message">
+                                        <%= errorMessage %>
+                                    </div>
+                                <% } %>
+                                
+                                <button type="submit" class="btn btn-outline-primary-2 btn-order btn-block">
+                                                
+                                    <span class="btn-text">Place Order</span>
+                                    <span class="btn-hover-text">Proceed to Checkout</span>
+                                </button>
+                            </div><!-- End .summary -->
+                        </aside><!-- End .col-lg-3 -->
+                    </div><!-- End .row -->
+                </form>
+            </div><!-- End .container -->
+        </div><!-- End .checkout -->
+    </div><!-- End .page-content -->
+</main><!-- End .main -->
+
+<!-- Add your modal HTML with an error message area -->
+
+<div class="modal fade" id="newaddress-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add New Address</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addressForm">
+                    <div class="container-fluid form-group">
+                        <label for="inputName">Name</label>
+                        <input type="text" class="form-control" id="addressName" placeholder="Enter your name">
+                        <div id="validationMessagesName" class="text-danger" style="display: none;"></div>
+                    </div>
+                    <div class="container-fluid form-group">
+                        <label for="inputName">House Name</label>
+                        <input type="text" class="form-control" id="houseName" placeholder="Enter your house name">
+                        <div id="validationMessagesHouse" class="text-danger" style="display: none;"></div>
+                    </div>
+                    <div class="container-fluid form-group">
+                        <label for="inputName">Street</label>
+                        <input type="text" class="form-control" id="street" placeholder="Enter your street name">
+                        <div id="validationMessagesStreet" class="text-danger" style="display: none;"></div>
+                    </div>
+                    <div class="container-fluid form-group">
+                        <label for="inputName">City</label>
+                        <input type="text" class="form-control" id="city" placeholder="Enter your city name">
+                        <div id="validationMessagesCity" class="text-danger" style="display: none;"></div>
+                    </div>
+                    <div class="container-fluid form-group">
+                        <label for="inputName">Pincode</label>
+                        <input type="text" class="form-control" id="pincode" placeholder="Enter your pincode">
+                        <div id="validationMessagesPincode" class="text-danger" style="display: none;"></div>
+                    </div>
+                    <div class="container-fluid form-group">
+                        <label for="inputName">Mobile</label>
+                        <input type="text" class="form-control" id="mobile" placeholder="Enter your mobile number">
+                        <div id="validationMessagesMobile" class="text-danger" style="display: none;"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" id="saveAddressBtn" class="btn btn-primary" onclick="saveAddress()">Save Address</button>
+                    </div>
+                </form>
+            </div>
+            <!-- <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" id="saveAddressBtn" class="btn btn-primary">Save Address</button>
+            </div> -->
+            
+        </div>
+    </div>
+</div>
+
+<!-- Add your script -->
+<!-- Include jQuery library -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<script>
+    function saveAddress() {
+        // Perform client-side validation
+        if (!validateForm()) {
+            return;
+        }
+
+        // Prepare data to be sent to the server
+        var formData = {
+            name: $("#addressName").val(),
+            housename: $("#houseName").val(),
+            street: $("#street").val(),
+            city: $("#city").val(),
+            pincode: $("#pincode").val(),
+            mobile: $("#mobile").val(),
+        };
+
+        // Make AJAX request
+        $.ajax({
+            type: "POST",
+            url: "/api/saveAddress",
+            data: formData,
+            success: function (response) {
+                // Handle success response
+                console.log(response);
+                // Optionally, update the UI or perform other actions on success
+            },
+            error: function (error) {
+                // Handle error response
+                console.error("Error saving address:", error);
+                // Optionally, update the UI or show an error message
+            },
+        });
+    }
+
+    // Client-side form validation
+    function validateForm() {
+        var isValid = true;
+
+        // Validation for Name
+        var name = $("#addressName").val();
+        if (name === "") {
+            $("#validationMessagesName").text("Name is required").show();
+            isValid = false;
+        } else {
+            $("#validationMessagesName").hide();
+        }
+
+        // Validation for House Name
+        var houseName = $("#houseName").val();
+        if (houseName === "") {
+            $("#validationMessagesHouse").text("House Name is required").show();
+            isValid = false;
+        } else {
+            $("#validationMessagesHouse").hide();
+        }
+
+        // Validation for Street
+        var street = $("#street").val();
+        if (street === "") {
+            $("#validationMessagesStreet").text("Street is required").show();
+            isValid = false;
+        } else {
+            $("#validationMessagesStreet").hide();
+        }
+
+        // Validation for City
+        var city = $("#city").val();
+        if (city === "") {
+            $("#validationMessagesCity").text("City is required").show();
+            isValid = false;
+        } else {
+            $("#validationMessagesCity").hide();
+        }
+
+        // Validation for Pincode
+        var pincode = $("#pincode").val();
+        if (pincode === "") {
+            $("#validationMessagesPincode").text("Pincode is required").show();
+            isValid = false;
+        } else {
+            // Validate pincode format if needed
+            var pincodeRegex = /^\d{6}$/;
+            if (!pincodeRegex.test(pincode)) {
+                $("#validationMessagesPincode").text("Invalid Pincode format").show();
+                isValid = false;
+            } else {
+                $("#validationMessagesPincode").hide();
+            }
+        }
+
+        // Validation for Mobile
+        var mobile = $("#mobile").val();
+        if (mobile === "") {
+            $("#validationMessagesMobile").text("Mobile is required").show();
+            isValid = false;
+        } else {
+            // Validate mobile number format if needed
+            var mobileRegex = /^\d{10}$/;
+            if (!mobileRegex.test(mobile)) {
+                $("#validationMessagesMobile").text("Invalid Mobile number format").show();
+                isValid = false;
+            } else {
+                $("#validationMessagesMobile").hide();
+            }
+        }
+
+        return isValid;
+    }
+</script>
+<script>
+    // Assuming you have a function to handle the form submission or AJAX request
+async function submitOrder() {
+    try {
+        // Make the request to the server
+        const response = await fetch('/placeOrder', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                selectedAddress: 'addressId', // Replace with actual address ID
+                paymentMode: 'creditCard', // Replace with actual payment mode
+                // Include other form data as needed
+            }),
+        });
+
+        // Check if the request was successful (status code 200)
+        if (response.ok) {
+            // Order placed successfully
+            const result = await response.json();
+            console.log(result.message);
+            // Redirect or update UI accordingly
+        } else {
+            // Handle errors, e.g., display an error message to the user
+            const errorData = await response.json();
+            console.error(errorData.error);
+            // Display error message to the user
+        }
+    } catch (error) {
+        console.error('Error submitting order:', error);
+    }
+}
+
+// Call the function when the form is submitted or an order is placed
+submitOrder();
+
+</script>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+
+
+<%-include('../layouts/footbar.ejs')%>
+<%-include('../layouts/footer.ejs')%>

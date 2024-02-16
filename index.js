@@ -4,9 +4,10 @@ mongoose.connect("mongodb://127.0.0.1:27017/Decora");
 const express = require('express');
 const app = express();
 const path = require('path');
-const flash = require('connect-flash');
+const flash = require('express-flash');
 const nocache = require('nocache');
 const session  = require('express-session');
+const dotenv = require('dotenv').config();
 
 app.use(nocache());
 
@@ -26,9 +27,13 @@ const userRoute = require('./routes/userRoute');
 app.use('/',userRoute);
 
 //For admin Route
-// const adminRoute = require('./routes/adminRoute');
-// app.use('/',adminRoute);
+const adminRoute = require('./routes/adminRoute');
+app.use('/admin',adminRoute);
 
 app.listen(4000, ()=> {
   console.log("http://localhost:4000");
 });
+
+
+
+
