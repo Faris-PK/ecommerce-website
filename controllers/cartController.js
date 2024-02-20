@@ -53,7 +53,7 @@ const addToCart = async (req, res) => {
                         productid: productId,
                         quantity: quantity,
                         totalPrice: quantity * product.price,
-                        Image: product.image[0],
+                        Image: product.image[3],
                     },
                 ],
             });
@@ -141,6 +141,7 @@ const loadCheckout = async (req,res)=>{
             select:"name price",
 
         });
+        //console.log(checkoutProduct);
 
        // Check if the cart is empty
        if (checkoutProduct.length === 0) {
@@ -148,6 +149,7 @@ const loadCheckout = async (req,res)=>{
         req.flash('error', 'Your cart is empty. Add products to your cart before proceeding to checkout.');
         return res.redirect('/cart'); // Adjust the route based on your actual route
     }
+    
 
         //Calculate Grandtotal
 

@@ -14,7 +14,7 @@ user_route.use(express.json());
 user_route.use(express.urlencoded({extended:true}));
 
 user_route.get('/register',userController.loadRegister);
-user_route.post('/register',userController.insertUser)
+user_route.post('/register',userController.insertUser);
 
 user_route.get('/otp',userController.loadOTP);
 user_route.post('/otp',userController.verifyOTP);
@@ -28,8 +28,8 @@ user_route.get('/logout',userController.userLogout);
 user_route.get('/aboutus',userController.loadAboutUs);
 user_route.get('/contactus',userController.loadContactUs);
 
-user_route.get('/', userAuth.isAuthenticated, userController.loadHome);
-user_route.get('/home', userAuth.isAuthenticated, userController.loadHome);
+user_route.get('/', userAuth.isAuthenticated,userAuth.checkBlockedStatus, userController.loadHome);
+user_route.get('/home', userAuth.isAuthenticated,userAuth.checkBlockedStatus, userController.loadHome);
 
 user_route.get('/productdetails/:productId',userController.loadProductDetails);
 
@@ -48,14 +48,24 @@ user_route.post('/saveNewAddress',userController.addAddress);
 user_route.post('/placeOrder',cartController.placeOrder);
 // user_route.post('/cancelOrder', cartController.cancelOrder);
 //user_route.post('/cancelOrder/:orderId', cartController.cancelOrder);
-
 user_route.get('/profile',userController.userProfile);
 
 user_route.get('/user/address/:id',userController.loadEditAddresss);
 user_route.put('/user/address/:id',userController.updateAddress)
 
+//user_route.get('/edit/:id', userController.editUser);
+user_route.put('/edit/:id', userController.updateUser);
 
+// user_route.get('/forgot-password',userAuth.isLogout,userController.loadForgotPassword);
+// user_route.post('/forgot-password-submit',userController.submitForgotPassword);
 
+user_route.get('/forgot-password', userAuth.isLogout, userController.loadForgotPassword);
+user_route.post('/forgot-password-submit', userController.submitForgotPassword);
+user_route.get('/reset-password/:token', userController.loadResetPassword);
+user_route.post('/reset-password-submit', userController.submitResetPassword);
+
+user_route.get('/edit-password',userController.loadPasswordUpdate);
+user_route.post('/password-update', userController.updatePassword);
 
 
 module.exports = user_route;

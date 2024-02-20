@@ -6,7 +6,7 @@ const multer = require('multer');
 const loadProductList = async (req,res)=>{
     try {
         const products = await Products.find();
-        console.log(products);
+        //console.log(products);
         res.render('productList',{'products':products})
     } catch (error) {
         console.log(error.message)
@@ -111,12 +111,40 @@ const loadEditProduct = async (req, res) => {
 
 
 
+// const editProduct = async (req, res) => {
+//     try {
+//         const productId = req.params.id;
+//         const { name, price, quantity, category, description } = req.body;
+
+//         const images = req.files.map(file => file.filename);
+
+//         // Update the existing product with the new information
+//         await Products.findByIdAndUpdate(productId, {
+//             name: name,
+//             price: price,
+//             quantity: quantity,
+//             category: category,
+//             description: description,
+//             image: images
+//         });
+
+//         res.redirect('/admin/product'); // Redirect to a suitable route after successful submission
+//     } catch (error) {
+//         console.log(error.message);
+//         req.flash('err', 'Error editing product. Please try again');
+//     }
+// }
+
 const editProduct = async (req, res) => {
     try {
         const productId = req.params.id;
         const { name, price, quantity, category, description } = req.body;
 
-        const images = req.files.map(file => file.filename);
+        // Check if images are included in the form data
+        const images = req.files ? req.files.map(file => file.filename) : [];
+
+        // Get the existing product
+        const existingProduct = await Products.findById(productId);
 
         // Update the existing product with the new information
         await Products.findByIdAndUpdate(productId, {
@@ -125,7 +153,8 @@ const editProduct = async (req, res) => {
             quantity: quantity,
             category: category,
             description: description,
-            image: images
+            // Use the existing images if not provided in the form data
+            image: images.length > 0 ? images : existingProduct.image
         });
 
         res.redirect('/admin/product'); // Redirect to a suitable route after successful submission

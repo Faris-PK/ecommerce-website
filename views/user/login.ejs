@@ -15,6 +15,18 @@
                     <br>
                     <div class="tab-content">
                         <div class="tab-pane fade show active" id="login-2" role="tabpanel" aria-labelledby="login-tab-2">
+                            <% if (messages.success) { %>
+                                <div class="alert alert-success">
+                                    <%= messages.success %>
+                                </div>
+                            <% } %>
+                            <% if (messages.error) { %>
+                                <div class="alert alert-danger">
+                                    <%= messages.error %>
+                                </div>
+                            <% } %>
+                            
+                            
                             <form action="/loginsubmit" method="POST" onsubmit="return validateForm()">
                                 <div class="form-group">
                                     
@@ -37,7 +49,7 @@
                                         <span>LOG IN</span>
                                         <i class="icon-long-arrow-right"></i>
                                     </button>
-                                    
+                                    <a href="/forgot-password" class="forgot-link">Forgot Your Password?</a>
                                     <div class="custom-control custom-checkbox">
                                         <input type="checkbox" class="custom-control-input" id="login-remember-2">
                                         <!-- <a href="#" class="forgot-link">Forgot Your Password?</a><hr> -->

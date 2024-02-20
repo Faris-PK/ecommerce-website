@@ -1,10 +1,12 @@
 const User = require('../models/userModel');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 
 const userOTPVerification = require('../models/userOTPVerification');
 const Products = require('../models/productModel');
-const Order = require('../models/orderModel')
+const Order = require('../models/orderModel');
+const Token = require('../models/tokenModel');
 
 
 const securePassword = async(password) => {
@@ -48,7 +50,6 @@ const insertUser = async (req, res) => {
             });
 
               await user.save();
-            //res.render('success-2', { title: 'Registration Successfull!', message: 'Verify your Email.' });
 
             sendOTPVerificationEmail(user, res);
             // if(userData){
@@ -95,7 +96,7 @@ const sendOTPVerificationEmail = async({email},res)=>{
         //save otp record
         await newOTPVerification.save();
         await transporter.sendMail(mailoptions);
-        
+        //res.render('success-2', { title: 'Registration Successfull!', message: 'Verify your Email.' });
         res.redirect(`/otp?email=${email}`)
     } catch (error) {
         console.log(error.messgae)
@@ -120,6 +121,7 @@ const verifyOTP = async (req, res) => {
       const userVerification = await userOTPVerification.findOne({ email: email });
   
       if (!userVerification) {
+        req.flash('error','This account is not verified!! Go to login for verification')
         res.redirect('/login');
         return;
       }
@@ -154,9 +156,12 @@ const verifyOTP = async (req, res) => {
             email: user.email,
             name: user.name,
           };
-  
+          
           // redirect to the login page with a success parameter
-          res.redirect('/login?success=true');
+          //res.redirect('/login?success=true')
+          res.render('success-2', { title: 'Successfully Registered!', message: 'Go to Login!' });
+
+          ;
         } else {
           console.log('user blocked from this site');
           res.redirect('/login');
@@ -181,37 +186,7 @@ const verifyOTP = async (req, res) => {
     }
   };
   
-  
-//   const verifyLogin = async (req, res) => {
-//     try {
-//         const email = req.body.email;
-//         const password = req.body.password;
 
-//         const userData = await User.findOne({ email: email });
-
-//         if (userData) {
-//             const passwordMatch = await bcrypt.compare(password, userData.password);
-
-//             if (passwordMatch && !userData.is_blocked) {
-//                 if (!userData.is_verified) {
-//                     res.render('login', { message: "Email is not verified...!!!" });
-//                 } else {
-//                     req.session.userid = userData._id;
-//                     req.session.email = email; // Store user email in the session
-//                     req.session.name = userData.name; // Store username in the session
-//                     res.redirect('/');
-//                 }
-//             } else {
-//                 res.render('login', { message: "Email and Password is incorrect...!!!" });
-//             }
-//         } else {
-//             res.render('login', { message: "Email and Password is incorrect...!!!" });
-//         }
-
-//     } catch (error) {
-//         console.log(error.message);
-//     }
-// };
 
 const verifyLogin = async (req, res) => {
     try {
@@ -225,14 +200,20 @@ const verifyLogin = async (req, res) => {
 
             if (passwordMatch) {
                 if (userData.is_blocked) {
-                    res.render('login', { message: "Admin has blocked this account. Please contact support for assistance." });
+                    req.flash('error', 'Admin has blocked this account. Please contact support for assistance.');
+                    res.redirect('/login');
+                    //req.flash('error', 'Admin has blocked this account. Please contact support for assistance.');
+                    //res.render('login', { message: "Admin has blocked this account. Please contact support for assistance." });
                 } else if (!userData.is_verified) {
-                    res.render('login', { message: "Email is not verified...!!!" });
+                    sendOTPVerificationEmail(userData, res);
+                    // res.render('login', { message: "Email is not verified...!!!" });
                 } else {
                     req.session.userid = userData._id;
                     req.session.email = email; // Store user email in the session
                     req.session.name = userData.name; // Store username in the session
+                    req.flash('success', 'Welcome To Decora!');
                     res.redirect('/');
+
                 }
             } else {
                 res.render('login', { message: "Email and Password is incorrect...!!!" });
@@ -273,14 +254,6 @@ const userLogout = async (req, res) => {
 };
 
 
-// const loadLogin = async (req, res) => {
-//     try {
-//         res.render('login')
-//     }
-//     catch(error) {
-//         console.log(error.message);
-//     }
-// }
 const loadLogin = async (req, res) => {
     try {
         // Assuming you want to pass some session data to the login page
@@ -431,7 +404,7 @@ const updateAddress = async (req,res)=>{
         address.name = updateAddress.name;
         address.housename = updateAddress.housename;
         address.street = updateAddress.street;
-        address.city = updateAddress.street;
+        address.city = updateAddress.city;
         address.pin = updateAddress.pin;
         address.mobile = updateAddress.mobile;
 
@@ -444,6 +417,224 @@ const updateAddress = async (req,res)=>{
     }
        
 }
+
+// const editUser = async (req, res) => {
+//     try {
+//         const userId = req.params.id; // Assuming you have a user ID in the request params
+//         const user = await User.findById(userId);
+
+//         if (!user) {
+//             res.status(404).send("User not found");
+//             return;
+//         }
+
+//         res.render('editUser', { user });
+//     } catch (error) {
+//         console.log(error.message);
+//     }
+// }
+
+const updateUser = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const updatedUser = {
+            name: req.body.name,
+            email: req.body.email,
+            mobile: req.body.mobile,
+            // Add other fields as needed
+        };
+
+        await User.findByIdAndUpdate(userId, updatedUser);
+        res.send("User updated successfully");
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send("Internal Server Error");
+    }
+}
+
+const loadForgotPassword = async (req,res)=>{
+    try {
+        res.render('forgot-password')
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+const submitForgotPassword = async (req, res) => {
+    try {
+        const email = req.body.email;
+        //console.log(email);
+        const userData = await User.findOne({ email: email });
+        if (!userData || !userData.is_verified) {
+            req.flash('error', 'Invalid email or not verified.');
+            return res.redirect('/forgot-password');
+        }
+
+        // Generate a token
+        const token = crypto.randomBytes(20).toString('hex');
+
+        // Save the token in the database
+        const tokenData = new Token({
+            Token: token,
+            userId: userData._id,
+        });
+        await tokenData.save();
+
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            host: 'smtp.gmail.com',
+            port: 465,
+            secure: true,
+            auth: {
+                user: "faripk369@gmail.com",
+                pass: "amvs diqc bblx rhzh"
+            }
+        })
+
+        // Send the reset password email with the token link
+        const resetLink = `http://localhost:4000/reset-password/${token}`;
+        const mailOptions = {
+            from: 'faripk369@gmail.com',
+            to: email,
+            subject: 'Reset Password',
+            html: `Click <a href="${resetLink}">here</a> to reset your password.`,
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        // Redirect to the reset password page with the token
+        res.redirect('/login');
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+// const loadForgotPasswordConfirmation = async (req, res) => {
+//     try {
+//         res.render('forgotConfirmation');
+//     } catch (error) {
+//         console.log(error.message);
+//     }
+// }
+const loadResetPassword = async (req,res)=>{
+
+    try {
+        const token = req.params.token; // Assuming you use '/reset-password/:token' in your route
+        const tokenData = await Token.findOne({ Token: token });
+        if (!tokenData) {
+            req.flash('error', 'Invalid or expired token.');
+            return res.redirect('/forgot-password');
+        }
+
+        // Pass the token to the reset password page
+        res.render('reset-password',{token});
+    } catch (error) {
+        console.log(error.message);
+    }
+
+}
+
+const submitResetPassword = async (req,res)=>{
+    try {
+        const token = req.body.token;
+        const newPassword = req.body.newPassword;
+        const confirmPassword = req.body.confirmPassword;
+
+        // Find the user associated with the token
+        const tokenData = await Token.findOne({ Token: token });
+
+        if (!tokenData) {
+            req.flash('error', 'Invalid or expired token.');
+            return res.redirect('/forgot-password');
+        }
+
+        // Check if the passwords match
+        if (newPassword !== confirmPassword) {
+            req.flash('error', 'Passwords do not match.');
+            return res.redirect(`/reset-password/${token}`);
+        }
+
+        // Hash the new password
+        const passwordHash = await bcrypt.hash(newPassword, 10);
+
+        // Update the user's password
+        const user = await User.findById(tokenData.userId);
+        user.password = passwordHash;
+        await user.save();
+
+        // Remove the token from the database
+        await Token.deleteOne({ Token: token });
+        
+        // Set success flash message
+        req.flash('success', 'Password reset successfully.');
+
+
+        res.redirect('/login');
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+const loadPasswordUpdate = async (req, res) => {
+    try {
+        res.render('editPassword');
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send('Internal Server Error');
+    }
+};
+
+const updatePassword = async (req, res) => {
+    try {
+        
+        const userId = req.session.userid; 
+
+        if (!userId) {
+            // Handle case where user is not found
+            return res.render('editPassword', { message: "User not found" });
+        }
+
+        const user = await User.findOne({ _id: userId });
+
+        if (!user) {
+            // Handle case where user is not found
+            return res.render('editPassword', { message: "User not found" });
+        }
+
+        const currentPassword = req.body.currentPassword;
+        const newPassword = req.body.newPassword;
+        const confirmNewPassword = req.body.confirmPassword; // Corrected the field name
+
+        // Check if the current password matches the stored password
+        const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+
+        if (!isPasswordValid) {
+            // Handle case where current password is not valid
+            return res.render('editPassword', { message: "Current password is incorrect" });
+        }
+
+        // Check if the new password and confirm new password match
+        if (newPassword !== confirmNewPassword) {
+            // Handle case where new passwords do not match
+            return res.render('editPassword', { message: "New passwords do not match" });
+        }
+
+        // Update the user's password
+        const hashedNewPassword = await securePassword(newPassword);
+        user.password = hashedNewPassword;
+
+        // Save the updated user object
+        await user.save();
+
+        // Redirect or render success message
+        req.flash('success', 'Password Changed Successfully');
+        res.redirect('/edit-password'); 
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send('Internal Server Error');
+    }
+};
+
 
 
 module.exports = {
@@ -464,8 +655,16 @@ module.exports = {
     deleteAddress,
     userProfile,
     loadEditAddresss,
-    updateAddress
-    
-      
-    
+    updateAddress,
+    //ditUser,
+    updateUser,
+    loadForgotPassword,
+    submitForgotPassword,
+    loadResetPassword,
+    submitResetPassword,
+    //loadForgotPasswordConfirmation,
+    loadPasswordUpdate,
+    updatePassword
+
+   
 }

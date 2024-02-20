@@ -38,8 +38,9 @@
                                     <a class="nav-link" id="tab-address-link" data-toggle="tab" href="#tab-address" role="tab" aria-controls="tab-address" aria-selected="false">Adresses</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" id="tab-account-link" data-toggle="tab" href="#tab-account" role="tab" aria-controls="tab-account" aria-selected="false">Account Details</a>
+                                    <a class="nav-link" href="/edit-password" role="tab" aria-selected="false">Password Management</a>
                                 </li>
+                                                              
                                 <li class="nav-item">
                                     <a class="nav-link" href="/logout">Sign Out</a>
                                 </li>
@@ -73,7 +74,9 @@
                                         </tbody>
                                     </table>
                                     <div class="text-center">
-                                        <a href="#" class="btn btn-secondary mt-1">Edit User</a>
+                                        <!-- <a href="#" class="btn btn-secondary mt-1">Edit User</a> -->
+                                        <a href="/edit/<%= user._id %>" class="btn btn-secondary mt-1" data-toggle="modal" data-target="#edituser-modal">Edit User</a>
+
                                       </div>
                                   </div>
                                 
@@ -210,43 +213,7 @@
                                     
                                 </div><!-- .End .tab-pane -->
                                 
-
-                                <div class="tab-pane fade" id="tab-account" role="tabpanel" aria-labelledby="tab-account-link">
-                                    <form action="#">
-                                        <div class="row">
-                                            <div class="col-sm-6">
-                                                <label>First Name *</label>
-                                                <input type="text" class="form-control" required>
-                                            </div><!-- End .col-sm-6 -->
-
-                                            <div class="col-sm-6">
-                                                <label>Last Name *</label>
-                                                <input type="text" class="form-control" required>
-                                            </div><!-- End .col-sm-6 -->
-                                        </div><!-- End .row -->
-
-                                        <label>Display Name *</label>
-                                        <input type="text" class="form-control" required>
-                                        <small class="form-text">This will be how your name will be displayed in the account section and in reviews</small>
-
-                                        <label>Email address *</label>
-                                        <input type="email" class="form-control" required>
-
-                                        <label>Current password (leave blank to leave unchanged)</label>
-                                        <input type="password" class="form-control">
-
-                                        <label>New password (leave blank to leave unchanged)</label>
-                                        <input type="password" class="form-control">
-
-                                        <label>Confirm new password</label>
-                                        <input type="password" class="form-control mb-2">
-
-                                        <button type="submit" class="btn btn-outline-primary-2">
-                                            <span>SAVE CHANGES</span>
-                                            <i class="icon-long-arrow-right"></i>
-                                        </button>
-                                    </form>
-                                </div><!-- .End .tab-pane -->
+                                
                             </div>
                         </div><!-- End .col-lg-9 -->
                     </div><!-- End .row -->
@@ -426,6 +393,8 @@
         </div>
     </div>
 </div>
+<!-- Password Management Modal -->
+
 
 <!-- EDIT ADDRESS MODAL -->
 <div class="modal fade" id="editaddress-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -480,6 +449,44 @@
     </div>
 </div>
 
+<!-- Edit User Modal -->
+<div class="modal fade" id="edituser-modal" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editUserForm">
+                    <div class="container-fluid form-group">
+                        <label for="inputName">Name</label>
+                        <input type="text" class="form-control" id="editUserName" value="<%= user.name %>" placeholder="Enter your name">
+                        <!-- Add validation message div if needed -->
+                    </div>
+                    <div class="container-fluid form-group">
+                        <label for="inputEmail">Email</label>
+                        <input type="email" class="form-control" id="editUserEmail" value="<%= user.email %>" placeholder="Enter your email">
+                        <!-- Add validation message div if needed -->
+                    </div>
+                    <div class="container-fluid form-group">
+                        <label for="inputMobile">Mobile</label>
+                        <input type="text" class="form-control" id="editUserMobile" value="<%= user.mobile %>" placeholder="Enter your mobile number">
+                        <!-- Add validation message div if needed -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" id="updateUserBtn" class="btn btn-primary">Update User</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
 <style>
     /* Table styling (optional) */
@@ -511,6 +518,78 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
+
+
+
+<!-- For user Edit -->
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#updateUserBtn").on("click", function () {
+            // Clear previous validation messages
+            $(".validation-warning").remove();
+
+            // Get input values
+            var name = $("#editUserName").val().trim();
+            var email = $("#editUserEmail").val().trim();
+            var mobile = $("#editUserMobile").val().trim();
+
+            // Validate Name
+            if (name === "" || name === "*") {
+                displayWarning("editUserName", "Please enter a valid full name");
+                return false;
+            }
+
+            // Validate Email
+            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                displayWarning("editUserEmail", "Please enter a valid email address");
+                return false;
+            }
+
+            // Validate Mobile Number
+            var mobileRegex = /^\d{10}$/;
+            if (!mobileRegex.test(mobile) || /^(.)\1+$/.test(mobile)) {
+                displayWarning("editUserMobile", "Please enter a valid 10-digit mobile number");
+                return false;
+            }
+
+            // If all validations pass, proceed with the AJAX request
+            $.ajax({
+                type: "PUT",
+                url: "/edit/<%= user._id %>",
+                data: {
+                    name: name,
+                    email: email,
+                    mobile: mobile,
+                    // Add other fields as needed
+                },
+                success: function (response) {
+                    console.log(response);
+                    // Handle success (e.g., close modal, show success message)
+                    $("#edituser-modal").modal("hide");
+                    // Reload the page after successful update
+                    location.reload();
+                },
+                error: function (error) {
+                    console.log(error);
+                    // Handle error (e.g., show error message)
+                }
+            });
+        });
+
+        // Function to display validation warning message
+        function displayWarning(fieldId, message) {
+            $("#" + fieldId).after('<div class="validation-warning text-danger">' + message + '</div>');
+        }
+    });
+</script>
+
+
+
+
 
 <script>
     // JavaScript function to populate the edit address modal and handle form submission
@@ -778,6 +857,8 @@
         }
     }
 </script>
+
+<!-- For Edit password -->
 
 
 
