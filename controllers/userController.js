@@ -7,6 +7,7 @@ const userOTPVerification = require('../models/userOTPVerification');
 const Products = require('../models/productModel');
 const Order = require('../models/orderModel');
 const Token = require('../models/tokenModel');
+const Category = require('../models/categoryModel');
 
 
 const securePassword = async(password) => {
@@ -270,7 +271,10 @@ const loadLogin = async (req, res) => {
 
 const loadAboutUs = async (req, res) => {
     try {
-        res.render('aboutUs')
+        const email = req.session.email;
+        const username = req.session.name;
+        res.render('aboutUs',{email,username});
+        
     }
     catch(error) {
         console.log(error.message);
@@ -282,8 +286,14 @@ const loadHome = async (req, res) => {
     try {
         const email = req.session.email;
         const username = req.session.name; // Retrieve username from the session
-        const products = await Products.find({ is_listed: true });
-        res.render('home', { email, username, userAuthenticated: req.session.userid, products });
+        const products = await Products.find({ is_listed: true })
+            .populate({
+                path: 'category',
+                select: 'name is_listed'
+            });
+        const categories = await Category.find({ is_listed: true });
+        //console.log(category);
+        res.render('home', { email, username, userAuthenticated: req.session.userid, products,categories });
     } catch (error) {
         console.log(error.message);
     }
@@ -293,7 +303,9 @@ const loadHome = async (req, res) => {
 
 const loadContactUs = async (req, res) => {
     try {
-        res.render('contact')
+        const email = req.session.email;
+        const username = req.session.name;
+        res.render('contact',{email,username})
     }
     catch(error) {
         console.log(error.message);
@@ -303,10 +315,12 @@ const loadContactUs = async (req, res) => {
 
 const loadProductDetails =async(req,res)=>{
     try {
+        const email = req.session.email;
+        const username = req.session.name;
         const userId = req.session.userid;
         const productId = req.params.productId;
         const product = await Products.findById(productId);
-        res.render('productDetails',{product,userId});
+        res.render('productDetails',{product,userId,email,username});
     } catch (error) { 
         console.log(error.message)
     }
@@ -362,6 +376,8 @@ const userProfile = async (req, res) => {
         const user = await User.findById(userId);
         const userAddress = user.address;
         //console.log(userAddress);
+        const email = req.session.email;
+        const username = req.session.name;
 
         const order = await Order.find({ userid: userId }).populate({
             path: 'products.productid', // Assuming 'products' is the array field in your Order model
@@ -371,7 +387,7 @@ const userProfile = async (req, res) => {
 
         //console.log(order);
 
-        res.render('userProfile', { user, userAddress, order });
+        res.render('userProfile', { user, userAddress, order ,email,username});
     } catch (error) {
         console.log(error.message);
     }
@@ -454,6 +470,7 @@ const updateUser = async (req, res) => {
 
 const loadForgotPassword = async (req,res)=>{
     try {
+
         res.render('forgot-password')
     } catch (error) {
         console.log(error.message);
@@ -521,6 +538,8 @@ const loadResetPassword = async (req,res)=>{
     try {
         const token = req.params.token; // Assuming you use '/reset-password/:token' in your route
         const tokenData = await Token.findOne({ Token: token });
+        console.log(Token.find());
+        console.log("TokenData:",tokenData);
         if (!tokenData) {
             req.flash('error', 'Invalid or expired token.');
             return res.redirect('/forgot-password');
@@ -577,7 +596,9 @@ const submitResetPassword = async (req,res)=>{
 
 const loadPasswordUpdate = async (req, res) => {
     try {
-        res.render('editPassword');
+        const email = req.session.email;
+        const username = req.session.name;
+        res.render('editPassword',{email,username});
     } catch (error) {
         console.log(error.message);
         res.status(500).send('Internal Server Error');

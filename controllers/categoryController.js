@@ -9,6 +9,7 @@ const addCategory = async (req,res)=>{
         //console.log(exist);
         if (exist) {
             req.flash('name','Category already exists');
+            res.status(200).json({ success: false, message: 'Category already exists' });
         } else {
             const newCategory = new Categories({
                 name: categoryName

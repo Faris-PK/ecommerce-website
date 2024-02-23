@@ -32,7 +32,7 @@ const orderSchema = mongoose.Schema({
         reason:{
             type:String,
             default:"N/A",
-            required:true,
+            
         },
         image:{
             type:String
@@ -42,6 +42,18 @@ const orderSchema = mongoose.Schema({
     paymentMode:{
         type:String,
     },
+    paymentId:{
+        type:String,
+        required:true // Add required validation as per your requirement
+    },
+    orderId: {
+        type:String,
+        required:true
+    },
+    hashedOrderId: {
+        type:String,
+        required:true
+    },
     subtotal: {
         type: Number
     },
@@ -49,7 +61,13 @@ const orderSchema = mongoose.Schema({
         type: Date
     },
     address: {
-        type: Object
+        name: String,
+        housename: String,
+        street: String,
+        city: String,
+        state: String,
+        pin: String,
+        mobile: String,
     },
 })
 

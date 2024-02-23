@@ -1,142 +1,5 @@
 <%-include('../layouts/header.ejs')%>
-
-<header class="header header-7">
-    <div class="header-middle sticky-header">
-        <div class="container">
-            
-            <div class="header-left">
-                <button class="mobile-menu-toggler">
-                    <span class="sr-only">Toggle mobile menu</span>
-                    <i class="icon-bars"></i>
-                </button>
-                
-                <a href="#" class="logo ">
-                    <img  src="/assets/images/backgrounds/brand-logo.jpg" alt="Molla Logo" width="170" height="120">
-                                       
-                </a>
-            </div><!-- End .header-left -->
-
-            <div class="header-right">
-                
-
-                <nav class="main-nav">
-                    <ul class="menu sf-arrows">
-                        <li class="megamenu-container active">
-                            <a href="./home" class="sf-with-ul">Home</a>
-                        </li>
-
-                        <li>
-                            <a href="product.html" class="sf-with-ul">Product</a>
-                        </li>
-                        <li>
-                            <a href="./aboutus" class="sf-with-ul">About Us</a>
-                        </li>
-
-                        <li>
-                            <a href="./contactus" class="sf-with-ul">Contact Us</a>
-                        </li>
-                    </ul><!-- End .menu -->
-                </nav><!-- End .main-nav -->
-                
-                <div class="header-search">
-                    <a href="#" class="search-toggle" role="button"><i class="icon-search"></i></a>
-                    <form action="#" method="get">
-                        <div class="header-search-wrapper">
-                            <label for="q" class="sr-only">Search</label>
-                            <input type="search" class="form-control" name="q" id="q" placeholder="Search in..." required>
-                        </div><!-- End .header-search-wrapper -->
-                    </form>
-                </div><!-- End .header-search -->
-                <div class="dropdown cart-dropdown">
-                    <a href="/cart" class="dropdown-toggle" role="button"  aria-haspopup="true" aria-expanded="false" data-display="static">
-                        <i class="icon-shopping-cart"></i>
-                        <span class="cart-count">2</span>
-                    </a>
-                </div>
-                <!-- End .cart-dropdown -->
-
-                <!-- <div class="dropdown cart-dropdown">
-                    <a href="/cart" class="dropdown-toggle" role="button" aria-haspopup="true" aria-expanded="false" data-display="static">
-                        <i class="icon-shopping-cart"></i>
-                        <span class="cart-count">2</span>  -->
-                        <!-- Render cart count dynamically -->
-                    <!-- </a>
-                </div> -->
-                <!-- End .cart-dropdown -->
-                
-                <a href="wishlist.html" class="wishlist-link">
-                    <i class="icon-heart-o"></i>
-                        <span class="wishlist-count">3</span>
-                </a>
-                <div class="dropdown cart-dropdown">
-                    <% if (email) { %>
-                        <!-- If the user is logged in, display user info and logout button -->
-                        <a href="#" class="dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
-                            <i class="icon-user"></i><p><%= username %></p>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <div class="dropdown-cart-action d-flex justify-content-between align-items-center">
-                                <p class="mb-0">Your Email: <%= email %></p>
-                                <div class="btn-group">
-                                    <a href="/profile" class="btn btn-secondary mr-3">Your Profile</a> <!-- Added mr-2 for right margin -->
-                                    <a href="/logout" class="btn btn-primary">Logout</a>
-                                </div>
-                            </div>
-                        </div>
-                        
-                    <% } else { %>
-                        <!-- If the user is not logged in, display a login button -->
-                        <a href="/login" class="btn btn-outline-primary">Login</a>
-                    <% } %>
-                </div>
-                
-                
-                <style>
-                    .dropdown-cart-action {
-                        display: flex;
-                        flex-direction: column;
-                        align-items: flex-start;
-                          }
-                </style>
-                
-                
-
-                
-            </div><!-- End .header-right -->
-        </div><!-- End .container -->
-    </div><!-- End .header-middle -->
-</header><!-- End .header -->
-
-<!-- Mobile Menu -->
-<div class="mobile-menu-overlay"></div><!-- End .mobil-menu-overlay -->
-
-<div class="mobile-menu-container">
-    <div class="mobile-menu-wrapper">
-        <span class="mobile-menu-close"><i class="icon-close"></i></span>
-
-        
-        <nav class="mobile-nav">
-            <ul class="mobile-menu">
-                <li class="active">
-                    <a href="index.html">Home</a>
-
-                    
-                </li>
-                <li>
-                    <a href="product.html" class="sf-with-ul">Product</a>
-        
-                </li>
-                <li>
-                    <a href="#">About Us</a>
-                   
-                </li>
-                <li>
-                    <a href="#">Contact Us</a>
-                </li>
-            </ul>
-        </nav><!-- End .mobile-nav -->
-    </div><!-- End .mobile-menu-wrapper -->
-</div><!-- End .mobile-menu-container -->
+<%-include('../layouts/navbar.ejs')%>
 
     <link rel="stylesheet" href="assets/vendor/line-awesome/line-awesome/line-awesome/css/line-awesome.min.css">
     <!-- Plugins CSS File -->
@@ -178,7 +41,9 @@
 
                 <span class="slider-loader"></span><!-- End .slider-loader -->
             </div><!-- End .intro-slider-container -->
-         
+
+            <%-include('../layouts/home-nav.ejs')%>
+
             <div class="container">    
                 <div class="products-container" data-layout="fitRows">
                     <% products.forEach(product => { %>
@@ -186,35 +51,49 @@
                             
                             <div class="product product-4">
                                 <figure class="product-media">
-                                    <a href="/productdetails/<%= product._id%>">
+                                    <a href="<%= product.quantity > 0 ? '/productdetails/' + product._id : '#' %>">
                                         <img src="<%= product.image && product.image[3] %>" alt="Product image" class="product-image">
-
                                     </a>
-    
+            
                                     <div class="product-action-vertical">
-                                        <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
+                                        <% if (product.quantity > 0) { %>
+                                            <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
+                                        <% } else { %>
+                                            <span class="out-of-stock-label">Out of Stock</span>
+                                        <% } %>
                                     </div><!-- End .product-action -->
-    
+            
                                     <div class="product-action">
-                                        <a href="popup/quickView.html" class="btn-product btn-quickview" title="Quick view"><span>quick view</span></a>
+                                        <a href="<%= product.quantity > 0 ? 'popup/quickView.html' : '#' %>" class="btn-product btn-quickview" title="Quick view"><span>quick view</span></a>
                                     </div><!-- End .product-action -->
                                 </figure><!-- End .product-media -->
-    
+            
                                 <div class="product-body">
-                                    <h3 class="product-title"><a href="product.html"><%= product.name %></a></h3><!-- End .product-title -->
+                                    <h3 class="product-title">
+                                        <a href="<%= product.quantity > 0 ? 'product.html' : '#' %>"><%= product.name %></a>
+                                    </h3><!-- End .product-title -->
                                     <div class="product-price">
-                                        <div class="out-price">₹<%= product.price %></div><!-- End .out-price -->
+                                        <% if (product.quantity > 0) { %>
+                                            <div class="out-price">₹<%= product.price %></div><!-- End .out-price -->
+                                        <% } else { %>
+                                            <span class="out-of-stock-label"><strong style="color: red;">Out of Stock</strong></span>
+                                        <% } %>
                                     </div><!-- End .product-price -->
                                     <div class="product-action">
-                                        <a href="#" class="btn-product btn-cart"><span>add to cart</span><i class="icon-long-arrow-right"></i></a>
+                                        <% if (product.quantity > 0) { %>
+                                            <a href="#" class="btn-product btn-cart"><span>add to cart</span><i class="icon-long-arrow-right"></i></a>
+                                        <% } %>
                                     </div><!-- End .product-action -->
                                 </div><!-- End .product-body -->
                             </div><!-- End .product -->
                             
                         </div><!-- End .product-item -->
-                        <% }); %>
+                    <% }); %>
                 </div><!-- End .products-container -->
             </div><!-- End .container -->
+
+            
+
 
             <!-- <div class="more-container text-center mt-0 mb-7">
                 <a href="category.html" class="btn btn-outline-dark-3 btn-more"><span>more products</span><i class="la la-refresh"></i></a>

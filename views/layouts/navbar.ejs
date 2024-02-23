@@ -1,5 +1,36 @@
-<header class="header">
+<style>
+    /* Style for the circular count */
+    .cart-count,
+    .wishlist-count {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        background-color: #cc9966; /* Background color of the circle */
+        border-radius: 50%; /* Make it a circle */
+        color: #fff; /* Text color */
+        font-size: 12px; /* Font size of the count */
+        text-align: center; /* Center the count horizontally */
+        line-height: 20px; /* Center the count vertically */
+        position: absolute;
+        top: 0;
+        right: -10px;
+        padding: 2px;
+    }
 
+    /* Adjustment for the position of the cart count */
+    .cart-count {
+        right: -10px;
+    }
+
+    /* Adjustment for the position of the wishlist count */
+    .wishlist-count {
+        right: -10px;
+    }
+    
+    
+</style>
+
+<header class="header">
     <div class="header-middle sticky-header">
         <div class="container">
             <div class="header-left">
@@ -7,24 +38,37 @@
                     <span class="sr-only">Toggle mobile menu</span>
                     <i class="icon-bars"></i>
                 </button>
-
-                <a href="#" class="logo">
-                    <img src="/assets/images/backgrounds/brand-logo.jpg" width="170" height="120">
+                <a href="index.html" class="logo">
+                    <img src="/assets/images/backgrounds/brand-logo.jpg" alt="FurnIt Logo" width="155" height="45">
                 </a>
-
-                <nav class="main-nav">
-                    <ul class="menu sf-arrows">
+                <nav class="main-nav ">
+                    <ul class="menu sf-arrows ml-3">
                         <li class="megamenu-container active">
-                            <a href="/home" class="sf-with-ul">Home</a>
+                            <a href="./home" class="sf-with-ul">Home</a>
                         </li>
-
                         <li>
                             <a href="product.html" class="sf-with-ul">Product</a>
+                            <div class="megamenu megamenu-sm">
+                                <div class="row no-gutters">
+                                    <div class="col-md-6">
+                                        <div class="menu-col">
+                                            <div class="menu-title">Product Details</div><!-- End .menu-title -->
+                                            <ul>
+                                                <li><a href="/sofa">Sofas</a></li>
+                                                <li><a href="/sofa">Chair</a></li>
+                                                <li><a href="/sofa">Table</a></li>
+                                                <li><a href="/sofa">Lights</a></li>
+                                                <li><a href="/sofa">Wardrobe</a></li>
+                                                <li><a href="/sofa">Bed</a></li>
+                                            </ul>
+                                        </div><!-- End .menu-col -->
+                                    </div><!-- End .col-md-6 -->
+                                </div><!-- End .row -->
+                            </div><!-- End .megamenu megamenu-sm -->
                         </li>
                         <li>
                             <a href="./aboutus" class="sf-with-ul">About Us</a>
                         </li>
-
                         <li>
                             <a href="./contactus" class="sf-with-ul">Contact Us</a>
                         </li>
@@ -33,30 +77,49 @@
             </div><!-- End .header-left -->
 
             <div class="header-right">
-                <!-- <div class="header-search">
-                    <a href="#" class="search-toggle" role="button" title="Search"><i class="icon-search"></i></a>
-                    <form action="#" method="get">
-                        <div class="header-search-wrapper">
-                            <label for="q" class="sr-only">Search</label>
-                            <input type="search" class="form-control" name="q" id="q" placeholder="Search in..." required>
-                        </div>End .header-search-wrapper
-                    </form>
-                </div>End .header-search -->
-
-                <!-- jit nav pos -->
-
                 <div class="dropdown compare-dropdown">
-                    <a href="#" class="dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static" title="Compare Products" aria-label="Compare Products">
-                        <i class="icon-random"></i>
+                    <a href="/wishlist" class="dropdown-toggle" role="button" aria-haspopup="true" aria-expanded="false" data-display="static" title="Wishlist" aria-label="Compare Products">
+                        <i class="icon-heart-o"></i>
+                        <span class="wishlist-count"><%= locals.wishlistCount %></span> <!-- Render wishlist count dynamically -->
                     </a>
                 </div><!-- End .compare-dropdown -->
 
                 <div class="dropdown cart-dropdown">
-                    <a href="/cart" class="dropdown-toggle" role="button"  aria-haspopup="true" aria-expanded="false" data-display="static">
+                    <a href="/cart" class="dropdown-toggle" role="button" aria-haspopup="true" aria-expanded="false" data-display="static">
                         <i class="icon-shopping-cart"></i>
-                        <span class="cart-count">2</span>
+                        <span class="cart-count"><%= locals.cartCount %></span> <!-- Render cart count dynamically -->
                     </a>
+                </div><!-- End .cart-dropdown -->
+
+                <div class="dropdown cart-dropdown">
+                    <% if (locals.userAuthenticated) { %>
+                        <!-- If the user is logged in, display user info and logout button -->
+                        <a href="#" class="dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
+                            <i class="icon-user"></i><p><%= username %></p>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <div class="dropdown-cart-action d-flex justify-content-between align-items-center">
+                                <p class="mb-0">Your Email: <%= email %></p>
+                                <div class="btn-group">
+                                    <a href="/profile" class="btn btn-secondary mr-3">Your Profile</a> <!-- Added mr-2 for right margin -->
+                                    <a href="/logout" class="btn btn-primary">Logout</a>
+                                </div>
+                            </div>
+                        </div>
+                    <% } else { %>
+                        <!-- If the user is not logged in, display a login button -->
+                        <a href="/login" class="btn btn-outline-primary">Login</a>
+                    <% } %>
                 </div>
+
+                <style>
+                    .dropdown-cart-action {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: flex-start;
+                    }
+                    
+                </style>
             </div><!-- End .header-right -->
         </div><!-- End .container -->
     </div><!-- End .header-middle -->

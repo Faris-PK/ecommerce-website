@@ -147,6 +147,12 @@
                                         <div class="card-header" id="heading-3">
                                             <h2 class="card-title">
                                                 <a class="collapsed" role="button" data-toggle="collapse" href="#collapse-3" aria-expanded="false" aria-controls="collapse-3">
+                                                    Wallet
+                                                </a>
+                                                <a class="collapsed" role="button" data-toggle="collapse" href="#collapse-3" aria-expanded="false" aria-controls="collapse-3">
+                                                    Razor pay
+                                                </a>
+                                                <a class="collapsed" role="button" data-toggle="collapse" href="#collapse-3" aria-expanded="false" aria-controls="collapse-3">
                                                     Cash on delivery
                                                 </a>
                                             </h2>
@@ -265,11 +271,14 @@
                 // Handle success response
                 console.log(response);
                 // Optionally, update the UI or perform other actions on success
+                 // Close the modal
+                $('#newaddress-modal').modal('hide');
             },
             error: function (error) {
                 // Handle error response
                 console.error("Error saving address:", error);
                 // Optionally, update the UI or show an error message
+                location.reload();
             },
         });
     }

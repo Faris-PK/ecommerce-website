@@ -77,10 +77,14 @@
 
                         <div class="form-group">
                             <label for="username">Category Name</label>
+                            <div class="alert alert-danger mt-2" id="addCategoryError" style="display: none;"></div>
                             <input class="form-control" type="text" id="categoryName"
                                 required="" placeholder="Enter Category Name">
                             <div class="invalid-feedback" id="categoryNameError">
                                 Category Name should not contain blank spaces.
+                            </div>
+                            <div class="alert alert-danger mt-2" id="addCategoryError" style="display: none;">
+                                This category already exists.
                             </div>
                                 
                         </div>
@@ -147,21 +151,30 @@
 
         // Send AJAX request to the server
         $.ajax({
-            type: 'POST',
-            url: '/admin/save-category',  // Replace with your server-side route
-            data: JSON.stringify(formData),
-            contentType: 'application/JSON',
-            success: function (response) {
-                if (response.success) {
-                    console.log('Data saved successfully:', response);
-                    $('#signup-modal').modal('hide');
-                    location.reload();
-                }
-            },
-            error: function (error) {
-                console.error('Error saving data:', error);
+        type: 'POST',
+        url: '/admin/save-category',
+        data: JSON.stringify(formData),
+        contentType: 'application/JSON',
+        success: function (response) {
+        if (response.success) {
+            console.log('Data saved successfully:', response);
+            $('#signup-modal').modal('hide');
+            location.reload();
+        } else {
+            // Check if the response has a 'message' field
+            if (response.message) {
+                // Display the flash message in your modal
+                $('#addCategoryError').text(response.message).show();
+            } else {
+                console.error('Unknown error occurred:', response);
             }
-        });
+        }
+    },
+    error: function (error) {
+        console.error('Error saving data:', error);
+    }
+});
+
     });
     $('#categoryName').on('input', function () {
             $('#categoryNameError').hide();

@@ -2,11 +2,20 @@ const Cart = require('../models/cartModel');
 const Product = require('../models/productModel');
 const User = require('../models/userModel');
 const Order = require('../models/orderModel');
+const Razorpay = require('razorpay');
+const crypto = require('crypto');
+const {v4:uuidv4} = require('uuid');
 
+const  instance = new Razorpay({
+    key_id:process.env.RAZORPAY_ID_KEY,
+    key_secret:process.env.RAZORPAY_SECRET_KEY,
+});
 
 const loadCart = async(req,res)=>{
     try {
         let userId = req.session.userid;
+        const email = req.session.email;
+        const username = req.session.name;
         const cartProduct = await Cart.find({userid:userId}).populate({
             path:'product.productid',
             model:Product,
@@ -19,7 +28,7 @@ const loadCart = async(req,res)=>{
                 return acc + product.totalPrice;
             },0);
         },0);
-        res.render('cart',{cartProduct,grandTotal})
+        res.render('cart',{cartProduct,grandTotal,email,username})
        // console.log(cartProduct,grandTotal);
     } catch (error) {
         console.log(error.message);
@@ -127,6 +136,9 @@ const loadCheckout = async (req,res)=>{
     try {
         const userId = req.session.userid;
 
+        const email = req.session.email;
+        const username = req.session.name;
+
         //Fetch user address
 
         const user = await User.findById(userId);
@@ -159,47 +171,48 @@ const loadCheckout = async (req,res)=>{
             },0)
         },0);
 
-        res.render('checkout',{checkoutProduct,grandTotal,userAddresses});
+        res.render('checkout',{checkoutProduct,grandTotal,userAddresses,email,username});
     } catch (error) {
         console.log(error.message);
     }
 }
 
 
-const checkoutAddress = async (req,res)=>{
-
+const checkoutAddress = async (req, res) => {
     try {
         const user = await User.findById(req.session.userid);
 
-        
         // Validate input data
         if (!req.body.name || !req.body.housename || !req.body.street || !req.body.city || !req.body.pincode || !req.body.mobile) {
             return res.status(400).json({ message: 'All address fields are required' });
         }
 
-        //Add the address details to users address array 
+        // Add the address details to the user's address array
         user.address.push({
-            name:req.body.name,
-            housename:req.body.housename,
-            street:req.body.street,
-            city:req.body.city,
-            pin:req.body.pincode,
-            mobile:req.body.mobile
-
+            name: req.body.name,
+            housename: req.body.housename,
+            street: req.body.street,
+            city: req.body.city,
+            pin: req.body.pincode,
+            mobile: req.body.mobile
         });
 
-        //Sve the user with new address in mongo db
+        // Save the user with the new address in MongoDB
         const savedUser = await user.save();
-         //console.log(savedUser);
         
-        res.status(200).json({message:'Address saved successfully',user:savedUser})
+        // Log success message
+        console.log('Address saved successfully');
 
-    } catch (error) {  
+        // Send success response
+        res.status(200).json({ message: 'Address saved successfully', user: savedUser });
+    } catch (error) {
+        // Log error message
         console.error('Error saving address:', error);
+
+        // Send error response
         res.status(500).json({ message: 'Internal server error' });
     }
-
-}
+};
 
 
 const placeOrder = async (req,res)=>{

@@ -123,7 +123,7 @@
                                             <span>View Cart</span>
                                         </a>
                                         <div class="details-action-wrapper">
-                                            <a href="#" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a>
+                                            <a href="#" class="btn-product btn-wishlist" title="Wishlist" id="addToWishlistBtn"><span>Add to Wishlist</span></a>
                         
                                         </div><!-- End .details-action-wrapper -->
                                     </div><!-- End .product-details-action -->
@@ -258,90 +258,134 @@
     <!-- <button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button> -->
 
 
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-    const productId = '<%= product._id %>';
-    const userId = '<%= userId %>';
-
-    console.log('Script is running');
-    const addToCartBtn = document.getElementById('addToCartBtn');
-    const viewCartBtn = document.getElementById('viewCartBtn');
-    console.log('addToCartBtn:', addToCartBtn);
-    console.log('viewCartBtn:', viewCartBtn);
-
-    // Function to check if the product is in the cart
-    const checkCartStatus = async () => {
-    try {
-        const response = await fetch('/checkcart', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ productId, userId })
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to check cart status');
-        }
-
-        const data = await response.json();
-
-        if (data.isProductInCart) {
-            console.log('Product is in the cart');
-            addToCartBtn.style.display = 'none';
-            viewCartBtn.style.display = 'inline-block';
-        } else {
-            console.log('Product is NOT in the cart');
-            addToCartBtn.style.display = 'inline-block';
-            viewCartBtn.style.display = 'none';
-        }
-        } catch (error) {
-            console.error('Error checking cart status:', error);
-        }
-    };
-
-    // Initial check on page load
-    checkCartStatus();
-
-    // Function to add product to cart
-    const addToCart = async () => {
-        const Quantity = document.getElementById('qty').value;
-        const data = {
-            productId: productId,
-            userId: userId,
-            quantity: Quantity
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+        const productId = '<%= product._id %>';
+        const userId = '<%= userId %>';
+    
+        const addToCartBtn = document.getElementById('addToCartBtn');
+        const viewCartBtn = document.getElementById('viewCartBtn');
+        const addToCartText = document.getElementById('addToCartText'); // Add this line to get the span element
+    
+        // Function to add product to cart
+        const addToCart = async () => {
+            const Quantity = document.getElementById('qty').value;
+            const data = {
+                productId: productId,
+                userId: userId,
+                quantity: Quantity
+            };
+    
+            try {
+                const response = await fetch('/addtocart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+    
+                if (!response.ok) {
+                    throw new Error('Failed to add product to cart');
+                }
+    
+                const responseData = await response.json();
+                // After adding to cart, update the button text
+                if (responseData.isProductInCart) {
+                    addToCartBtn.style.display = 'none';
+                    viewCartBtn.style.display = 'inline-block';
+                } else {
+                    addToCartBtn.style.display = 'none';  // Assuming you want to hide the "Add to Cart" button after adding
+                    viewCartBtn.style.display = 'inline-block';
+                }
+                
+            } catch (error) {
+                console.error('Error adding to cart:', error);
+            }
         };
-
+    
+        // Add event listener for the "Add to Cart" button
+        addToCartBtn.addEventListener('click', () => {
+            // Check if the session is available
+            const isLoggedIn = '<%= userId !== "" %>';
+            if (isLoggedIn) {
+                // If user is logged in, proceed with adding to cart
+                addToCart();
+            } else {
+                // If user is not logged in, show the login modal
+                $('#loginModal').modal('show');
+            }
+        });
+    
+        // Initial check on page load
+        checkCartStatus();  // Call the checkCartStatus function to set the initial button display
+    });
+    
+    // Function to check cart status and update button display
+    const checkCartStatus = async () => {
         try {
-            const response = await fetch('/addtocart', {
+            const productId = '<%= product._id %>';  // Declare productId within the function scope
+            const userId = '<%= userId %>';
+            const response = await fetch('/checkcart', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(data)
+                body: JSON.stringify({ productId, userId })
             });
-
+    
             if (!response.ok) {
-                throw new Error('Failed to add product to cart');
+                throw new Error('Failed to check cart status');
             }
-
-            const responseData = await response.json();
-            console.log(responseData.message);
-
-            // After adding to cart, update the button text
-            checkCartStatus();
+    
+            const data = await response.json();
+    
+            if (data.isProductInCart) {
+                console.log('Product is in the cart');
+                addToCartBtn.style.display = 'none';
+                viewCartBtn.style.display = 'inline-block';
+            } else {
+                console.log('Product is NOT in the cart');
+                addToCartBtn.style.display = 'inline-block';
+                viewCartBtn.style.display = 'none';
+            }
         } catch (error) {
-            console.error('Error adding to cart:', error);
+            console.error('Error checking cart status:', error);
         }
     };
-
-    // Add event listener for the "Add to Cart" button
-    addToCartBtn.addEventListener('click', addToCart);
-});
-
-</script>
+    </script>
     
+    
+    <!-- Add to wishlist -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const addToWishlistBtn = document.getElementById('addToWishlistBtn');
 
+        addToWishlistBtn.addEventListener('click', async () => {
+            try {
+                const productId = '<%= product._id %>';
+                const userId = '<%= userId %>';
+                const response = await fetch('/addtowishlist', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ productId, userId })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to add product to wishlist');
+                }
+
+                const responseData = await response.json();
+                // console.log(responseData.message);
+            } catch (error) {
+                console.error('Error adding to wishlist:', error);
+            }
+        });
+    });
+</script>
 
     <!-- Plugins JS File -->
     <script src="/assets/js/jquery.min.js"></script>
