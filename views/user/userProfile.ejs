@@ -56,28 +56,63 @@
                                 </div> -->
                                 <div class="tab-pane fade show active" id="tab-dashboard" role="tabpanel" aria-labelledby="tab-dashboard-link">
                                     <table class="table table-bordered table-hover table-striped table-sm">
-                                      <thead>
-                                        <tr>
-                                          <th class="text-center" scope="col">Name</th>
-                                          <th class="text-center" scope="col">Email</th>
-                                          <th class="text-center" scope="col">Mobile</th>
-                                         
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        <tr>
-                                          <td class="text-center"><%=user.name %></td>
-                                          <td class="text-center"><%=user.email %></td>
-                                          <td class="text-center"><%=user.mobile %></td>
-                            
-                                        </tr>
+                                        <thead>
+                                            <tr>
+                                                <th class="text-center" scope="col">Name</th>
+                                                <th class="text-center" scope="col">Email</th>
+                                                <th class="text-center" scope="col">Mobile</th>
+                                                <th class="text-center" scope="col">Wallet Balance</th> <!-- New Column for Wallet Balance -->
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="text-center"><%=user.name %></td>
+                                                <td class="text-center"><%=user.email %></td>
+                                                <td class="text-center"><%=user.mobile %></td>
+                                                <td class="text-center"><%= wallet ? wallet.balance : 'N/A' %></td> <!-- Wallet Balance value -->
+                                            </tr>
                                         </tbody>
                                     </table>
-                                    <div class="text-center">
+                                    <div class="text-right">
                                         <!-- <a href="#" class="btn btn-secondary mt-1">Edit User</a> -->
                                         <a href="/edit/<%= user._id %>" class="btn btn-secondary mt-1" data-toggle="modal" data-target="#edituser-modal">Edit User</a>
 
                                       </div>
+                                    <div class="text-center mb-4 mt-3">
+                                        <h4 class="text-center d-inline-block font-weight-bold" style="font-size: 1.5rem;">Transaction History</h4>
+                                        <hr class="my-1">
+                                    </div>
+                                    
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-striped">
+                                            <thead class="thead-dark" style="font-weight: bold; font-size: 1.2rem;">
+                                                <tr>
+                                                    <th class="text-center">Date</th>
+                                                    <th class="text-center">Type</th>
+                                                    <th class="text-center">Amount</th>
+                                                    <th class="text-center">Order</th>
+                                                    <th class="text-center">Reason</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% if (wallet && wallet.walletHistory) { %>
+                                                    <% wallet.walletHistory.forEach(transaction => { %>
+                                                        <tr>
+                                                            <td class="text-center" style="font-size: 1.3rem;"><%= transaction.date.toDateString() %></td>
+                                                            <td class="text-center" style="font-size: 1.3rem;"><%= transaction.type %></td>
+                                                            <td class="text-center" style="font-size: 1.3rem;">₹<%= transaction.amount.toFixed(2) %></td>
+                                                            <td class="text-center" style="font-size: 1.3rem;"><%= transaction.orderId2 ? '#' + transaction.orderId2 : 'N/A' %></td>
+                                                            <td class="text-center" style="font-size: 1.3rem;"><%= transaction.reason %></td>
+                                                        </tr>
+                                                    <% }) %>
+                                                <% } else { %>
+                                                    <tr>
+                                                        <td colspan="5">No transactions found</td>
+                                                    </tr>
+                                                <% } %>
+                                            </tbody>
+                                        </table>
+                                    </div><!-- End .table-responsive -->                                   
                                   </div>
                                 
                                 <!-- .End .tab-pane -->
@@ -87,71 +122,37 @@
                                     <a href="/home " class="btn btn-outline-primary-2"><span>GO SHOP</span><i class="icon-long-arrow-right"></i></a>
                                 </div> -->
 
+                                
                                 <div class="tab-pane fade" id="tab-orders" role="tabpanel" aria-labelledby="tab-orders-link">
                                     <div class="row mt-4">
                                         <% if (order && order.length > 0) { %>
-                                            <% order.forEach(orderItem => { %>
-                                                <div class="col-12">
-                                                    <div class="card card-dashboard mb-3">
-                                                        <div class="card-body">
-                                                            <table class="table table-cart table-mobile">
-                                                                <thead>
-                                                                    <tr>
-                                                                        <th>Product</th>
-                                                                        <th>Price</th>
-                                                                        <th>Quantity</th>
-                                                                        <th>Total</th>
-                                                                        <th></th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
+                                            <!-- <a href="/od/<%= order.orderid %>"> Link to the product details page -->
+                                                <% order.forEach(orderItem => { %>
+                                                    <div class="col-12">
+                                                        <div class="card card-dashboard mb-3" onclick="toggleOrderDetails('<%= orderItem._id %>')">
+                                                            <div class="card-body">
+                                                                <div class="row">
                                                                     <% orderItem.products.forEach(product => { %>
-                                                                        <tr>
-                                                                            <td class="product-col">
-                                                                                <div class="product">
-                                                                                    <figure class="product-media">
-                                                                                        <img src="<%= product.image %>" alt="Product image">
-                                                                                    </figure>
-                                                                                    <h3 class="product-title">
-                                                                                        <%= product.name %>
-                                                                                    </h3><!-- End .product-title -->
-                                                                                </div><!-- End .product -->
-                                                                            </td>
-                                                                            <td class="price-col">₹<%= product.price %></td>
-                                                                            <td class="quantity-col">
-                                                                                <div class="cart-product-quantity">
-                                                                                    <p><strong>Quantity:</strong> <%= product.quantity %></p>
-                                                                                </div>
-                                                                            </td>
-                                                                            <td class="total-col">₹<%= product.price * product.quantity %></td>
-                                                                            <td class="remove-col">
-                                                                                <!-- You can add a button or link to view more details here if needed -->
-                                                                            </td>
-                                                                        </tr>
+                                                                        <div class="col-md-4">
+                                                                            <img src="<%= product.image %>" alt="Product Image" class="img-fluid mb-3" style="max-width: 100px;">
+                                                                        </div>
+                                                                        <div class="col-md-8">
+                                                                            <div class="product-info">
+                                                                                <p><%= product.name %></p>
+                                                                                <p>Quantity: <%= orderItem.products[0].quantity %> Price: ₹<%= product.price %></p>
+                                                                            </div>
+                                                                            <!-- Additional product details can be added here -->
+                                                                        </div>
                                                                     <% }) %>
-                                                                </tbody>
-                                                            </table>
+                                                                </div><!-- End .row -->
+                                                                <a class="btn btn-primary" href="/orderdetails/<%= orderItem._id%>">View Details</a>
+                                                            </div><!-- End .card-body -->
                                                             
-                                                            <!-- Order details for each product in the order -->
-                                                            <div class="text-right mt-3">
-                                                                <button class="btn btn-danger cancel-order-btn" onclick="cancelOrder('<%= orderItem._id %>')">Cancel Order</button>
-                                                            </div><!-- End .text-right -->
-                                
-                                                            <!-- Iterate through each product to display order details -->
-                                                            <% orderItem.products.forEach(product => { %>
-                                                                <div class="order-details mt-3">
-                                                                    <p>
-                                                                        <strong>Date Placed:</strong> <%= orderItem.date.toLocaleDateString() %><br>
-                                                                        <strong>Status:</strong> <%= product.orderStatus %><br>
-                                                                        <strong>Payment Mode:</strong> <%= orderItem.paymentMode %>
-                                                                    </p>
-                                                                    <!-- Add more order details as needed -->
-                                                                </div>
-                                                            <% }) %>
-                                                        </div><!-- End .card-body -->
-                                                    </div><!-- End .card-dashboard -->
-                                                </div><!-- End .col-12 -->
-                                            <% }) %>
+                                                        </div><!-- End .card-dashboard -->
+                                                    </div><!-- End .col-12 -->
+                                                <% }) %>
+                                            <!-- </a> -->
+                                            
                                         <% } else { %>
                                             <div class="col-12">
                                                 <p>No orders have been made yet.</p>
@@ -159,11 +160,7 @@
                                         <% } %>
                                     </div><!-- End .row -->
                                     <a href="/home" class="btn btn-outline-primary-2"><span>GO SHOP</span><i class="icon-long-arrow-right"></i></a>
-                                </div><!-- .End .tab-pane -->
-                                
-                                
-                                                                
-                                
+                                </div><!-- .End .tab-pane -->                           
 
                                 <!-- .End .tab-pane -->
 
@@ -222,121 +219,9 @@
     </main><!-- End .main -->
 </div><!-- End .page-wrapper -->
 <button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button>
+<!-- 
+ Add adress modal -->
 
-<!-- Sign in / Register Modal -->
-<div class="modal fade" id="signin-modal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-body">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true"><i class="icon-close"></i></span>
-                </button>
-
-                <div class="form-box">
-                    <div class="form-tab">
-                        <ul class="nav nav-pills nav-fill" role="tablist">
-                            <li class="nav-item">
-                                <a class="nav-link active" id="signin-tab" data-toggle="tab" href="#signin" role="tab" aria-controls="signin" aria-selected="true">Sign In</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="register-tab" data-toggle="tab" href="#register" role="tab" aria-controls="register" aria-selected="false">Register</a>
-                            </li>
-                        </ul>
-                        <div class="tab-content" id="tab-content-5">
-                            <div class="tab-pane fade show active" id="signin" role="tabpanel" aria-labelledby="signin-tab">
-                                <form action="#">
-                                    <div class="form-group">
-                                        <label for="singin-email">Username or email address *</label>
-                                        <input type="text" class="form-control" id="singin-email" name="singin-email" required>
-                                    </div><!-- End .form-group -->
-
-                                    <div class="form-group">
-                                        <label for="singin-password">Password *</label>
-                                        <input type="password" class="form-control" id="singin-password" name="singin-password" required>
-                                    </div><!-- End .form-group -->
-
-                                    <div class="form-footer">
-                                        <button type="submit" class="btn btn-outline-primary-2">
-                                            <span>LOG IN</span>
-                                            <i class="icon-long-arrow-right"></i>
-                                        </button>
-
-                                        <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="signin-remember">
-                                            <label class="custom-control-label" for="signin-remember">Remember Me</label>
-                                        </div><!-- End .custom-checkbox -->
-
-                                        <a href="#" class="forgot-link">Forgot Your Password?</a>
-                                    </div><!-- End .form-footer -->
-                                </form>
-                                <div class="form-choice">
-                                    <p class="text-center">or sign in with</p>
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                            <a href="#" class="btn btn-login btn-g">
-                                                <i class="icon-google"></i>
-                                                Login With Google
-                                            </a>
-                                        </div><!-- End .col-6 -->
-                                        <div class="col-sm-6">
-                                            <a href="#" class="btn btn-login btn-f">
-                                                <i class="icon-facebook-f"></i>
-                                                Login With Facebook
-                                            </a>
-                                        </div><!-- End .col-6 -->
-                                    </div><!-- End .row -->
-                                </div><!-- End .form-choice -->
-                            </div><!-- .End .tab-pane -->
-                            <div class="tab-pane fade" id="register" role="tabpanel" aria-labelledby="register-tab">
-                                <form action="#">
-                                    <div class="form-group">
-                                        <label for="register-email">Your email address *</label>
-                                        <input type="email" class="form-control" id="register-email" name="register-email" required>
-                                    </div><!-- End .form-group -->
-
-                                    <div class="form-group">
-                                        <label for="register-password">Password *</label>
-                                        <input type="password" class="form-control" id="register-password" name="register-password" required>
-                                    </div><!-- End .form-group -->
-
-                                    <div class="form-footer">
-                                        <button type="submit" class="btn btn-outline-primary-2">
-                                            <span>SIGN UP</span>
-                                            <i class="icon-long-arrow-right"></i>
-                                        </button>
-
-                                        <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="register-policy" required>
-                                            <label class="custom-control-label" for="register-policy">I agree to the <a href="#">privacy policy</a> *</label>
-                                        </div><!-- End .custom-checkbox -->
-                                    </div><!-- End .form-footer -->
-                                </form>
-                                <div class="form-choice">
-                                    <p class="text-center">or sign in with</p>
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                            <a href="#" class="btn btn-login btn-g">
-                                                <i class="icon-google"></i>
-                                                Login With Google
-                                            </a>
-                                        </div><!-- End .col-6 -->
-                                        <div class="col-sm-6">
-                                            <a href="#" class="btn btn-login  btn-f">
-                                                <i class="icon-facebook-f"></i>
-                                                Login With Facebook
-                                            </a>
-                                        </div><!-- End .col-6 -->
-                                    </div><!-- End .row -->
-                                </div><!-- End .form-choice -->
-                            </div><!-- .End .tab-pane -->
-                        </div><!-- End .tab-content -->
-                    </div><!-- End .form-tab -->
-                </div><!-- End .form-box -->
-            </div><!-- End .modal-body -->
-        </div><!-- End .modal-content -->
-    </div><!-- End .modal-dialog -->
-</div><!-- End .modal -->
-<!-- Add adress modal -->
 <div class="modal fade" id="newaddress-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -517,6 +402,13 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
+<script>
+    function toggleOrderDetails(orderId) {
+        const orderDetails = document.getElementById(`orderDetails${orderId}`);
+        orderDetails.style.display = orderDetails.style.display === 'none' ? 'block' : 'none';
+    }
+</script>
 
 
 

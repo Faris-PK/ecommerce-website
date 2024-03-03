@@ -14,16 +14,22 @@
  const adminAuth = require("../middlewares/adminAuth");
  const categoryController = require('../controllers/categoryController');
  const productController = require('../controllers/productController');
- const orderController = require('../controllers/orderController')
+ const orderController = require('../controllers/orderController');
+ const couponController = require('../controllers/couponController');
+ const adminDashboardController = require('../controllers/adminDashboardController');
 
  admin_route.get('/login',adminAuth.isLogout,adminController.loadAdminLogin);
  admin_route.get('/',adminAuth.isLogout,adminController.loadAdminLogin);
  admin_route.post('/loginsubmit',adminController.adminVerifyLogin);
  
- admin_route.get('/dashboard', adminAuth.isLogin, adminController.loadDashboard);
+ admin_route.get('/dashboard', adminAuth.isLogin, adminDashboardController.loadDashboard);
  admin_route.get('/logout',adminController.adminLogout);
 
- admin_route.get('/userlist',adminAuth.isLogin,adminController.loadUserList)
+ admin_route.get('/userlist',adminAuth.isLogin,adminController.loadUserList);
+ 
+admin_route.get('/salesreport', adminDashboardController.loadSalesReport);
+admin_route.post('/salesreport', adminDashboardController.generateSalesReport);
+
  admin_route.post('/toggle_user_status/:id', adminController.toggleUserStatus);
 
  admin_route.get('/category', adminAuth.isLogin, categoryController.loadCategoryList); 
@@ -42,5 +48,16 @@
  //admin_route.post('/toggleOrderStatus',orderController.updateOrderStatus)
  admin_route.post('/toggleOrderStatus', orderController.updateOrderStatus);
 
+ admin_route.get('/coupon',adminAuth.isLogin,couponController.loadCouponPage);
+ admin_route.get('/addcoupon',adminAuth.isLogin,couponController.loadAddCoupon);
+ admin_route.post('/submitCoupon',couponController.submitCoupon);
+ admin_route.post('/toggleCouponStatus/:couponId', couponController.toggleCouponStatus);
+ // Edit Coupon Route
+admin_route.get('/editCoupon/:couponId', adminAuth.isLogin, couponController.loadEditCoupon);
+
+// Submit Edit Coupon Route
+admin_route.post('/submitEditCoupon/:couponId', couponController.editCoupon);
+
  
+
  module.exports = admin_route

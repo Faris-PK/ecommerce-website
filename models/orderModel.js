@@ -1,15 +1,15 @@
 const mongoose = require('mongoose');
 
 const orderSchema = mongoose.Schema({
-    userid:{
-        type:mongoose.Schema.ObjectId,
+    userId:{
+        type:mongoose.Schema.Types.ObjectId,
         ref:'User',
         required:true
     },
     products:[{
         productid:{
             type:mongoose.Schema.ObjectId,
-            ref:'Product',
+            ref:'Products',
 
         },
         name:{
@@ -20,6 +20,10 @@ const orderSchema = mongoose.Schema({
         },
         quantity:{
             type:Number,
+        },
+        offerDiscount: {
+            type: Number,
+            default: 0
         },
         total:{
             type:Number,
@@ -38,7 +42,9 @@ const orderSchema = mongoose.Schema({
             type:String
         }
     }],
-
+    edd:{
+        type:Date
+    },
     paymentMode:{
         type:String,
     },
@@ -54,7 +60,14 @@ const orderSchema = mongoose.Schema({
         type:String,
         required:true
     },
-    subtotal: {
+    subTotal: {
+        type: Number
+    },
+    couponDiscount:{
+        type: Number,
+        default:0
+    },
+    grandTotal: {
         type: Number
     },
     date: {

@@ -11,6 +11,29 @@
     <link rel="stylesheet" href="assets/css/plugins/nouislider/nouislider.css">
     <link rel="stylesheet" href="assets/css/demos/demo-11.css">
 
+    <% if (messages.light) { %>
+        <div id="lightAlert" class="alert alert-light">
+            <h4><%= messages.light %></h4>
+        </div>
+    
+        <script>
+            // Set a timeout to remove the alert after 5 seconds
+            setTimeout(function() {
+                var lightAlert = document.getElementById('lightAlert');
+                if (lightAlert) {
+                    lightAlert.style.opacity = '0';
+                    lightAlert.style.transition = 'opacity 0.5s';
+    
+                    setTimeout(function() {
+                        lightAlert.style.display = 'none';
+                    }, 500);
+                }
+            }, 5000);
+        </script>
+    <% } %>
+    
+    
+
     <div class="page-wrapper">
         <main class="main">
             <div class="intro-slider-container mb-4">
@@ -46,51 +69,51 @@
 
             <div class="container">    
                 <div class="products-container" data-layout="fitRows">
-                    <% products.forEach(product => { %>
+                    <% products.slice(0, 8).forEach(product => { %>
+                        <!-- Only display the first 12 products -->
                         <div class="product-item furniture col-6 col-md-4 col-lg-3">
-                            
-                            <div class="product product-4">
-                                <figure class="product-media">
-                                    <a href="<%= product.quantity > 0 ? '/productdetails/' + product._id : '#' %>">
-                                        <img src="<%= product.image && product.image[3] %>" alt="Product image" class="product-image">
-                                    </a>
-            
-                                    <div class="product-action-vertical">
-                                        <% if (product.quantity > 0) { %>
-                                            <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
-                                        <% } else { %>
-                                            <span class="out-of-stock-label">Out of Stock</span>
-                                        <% } %>
-                                    </div><!-- End .product-action -->
-            
-                                    <div class="product-action">
-                                        <a href="<%= product.quantity > 0 ? 'popup/quickView.html' : '#' %>" class="btn-product btn-quickview" title="Quick view"><span>quick view</span></a>
-                                    </div><!-- End .product-action -->
-                                </figure><!-- End .product-media -->
-            
-                                <div class="product-body">
-                                    <h3 class="product-title">
-                                        <a href="<%= product.quantity > 0 ? 'product.html' : '#' %>"><%= product.name %></a>
-                                    </h3><!-- End .product-title -->
-                                    <div class="product-price">
-                                        <% if (product.quantity > 0) { %>
-                                            <div class="out-price">₹<%= product.price %></div><!-- End .out-price -->
-                                        <% } else { %>
-                                            <span class="out-of-stock-label"><strong style="color: red;">Out of Stock</strong></span>
-                                        <% } %>
-                                    </div><!-- End .product-price -->
-                                    <div class="product-action">
-                                        <% if (product.quantity > 0) { %>
-                                            <a href="#" class="btn-product btn-cart"><span>add to cart</span><i class="icon-long-arrow-right"></i></a>
-                                        <% } %>
-                                    </div><!-- End .product-action -->
-                                </div><!-- End .product-body -->
-                            </div><!-- End .product -->
-                            
+                              <div class="product product-4">
+                                            <figure class="product-media">
+                                                <a href="<%= product.quantity > 0 ? '/productdetails/' + product._id : '#' %>">
+                                                    <img src="<%= product.image && product.image[3] %>" alt="Product image" class="product-image">
+                                                </a>
+                        
+                                                <div class="product-action-vertical">
+                                                    <% if (product.quantity > 0) { %>
+                                                        <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
+                                                    <% } else { %>
+                                                        <span class="out-of-stock-label">Out of Stock</span>
+                                                    <% } %>
+                                                </div><!-- End .product-action -->
+                        
+                                                <div class="product-action">
+                                                    <a href="<%= product.quantity > 0 ? 'popup/quickView.html' : '#' %>" class="btn-product btn-quickview" title="Quick view"><span>quick view</span></a>
+                                                </div><!-- End .product-action -->
+                                            </figure><!-- End .product-media -->
+                        
+                                            <div class="product-body">
+                                                <h3 class="product-title">
+                                                    <a href="<%= product.quantity > 0 ? 'product.html' : '#' %>"><%= product.name %></a>
+                                                </h3><!-- End .product-title -->
+                                                <div class="product-price">
+                                                    <% if (product.quantity > 0) { %>
+                                                        <div class="out-price">₹<%= product.price %></div><!-- End .out-price -->
+                                                    <% } else { %>
+                                                        <span class="out-of-stock-label"><strong style="color: red;">Out of Stock</strong></span>
+                                                    <% } %>
+                                                </div><!-- End .product-price -->
+                                                <div class="product-action">
+                                                    <% if (product.quantity > 0) { %>
+                                                        <a href="#" class="btn-product btn-cart"><span>add to cart</span><i class="icon-long-arrow-right"></i></a>
+                                                    <% } %>
+                                                </div><!-- End .product-action -->
+                                            </div><!-- End .product-body -->
+                                        </div><!-- End .product -->
                         </div><!-- End .product-item -->
                     <% }); %>
                 </div><!-- End .products-container -->
             </div><!-- End .container -->
+            
 
             
 
@@ -105,37 +128,24 @@
     <button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button>
 
 
-    <div class="container newsletter-popup-container mfp-hide" id="newsletter-popup-form">
-        <div class="row justify-content-center">
-            <div class="col-10">
-                <div class="row no-gutters bg-white newsletter-popup-content">
-                    <div class="col-xl-3-5col col-lg-7 banner-content-wrap">
-                        <div class="banner-content text-center">
-                            <img src="assets/images/popup/newsletter/logo.png" class="logo" alt="logo" width="60" height="15">
-                            <h2 class="banner-title">get <span>25<light>%</light></span> off</h2>
-                            <p>Subscribe to the Molla eCommerce newsletter to receive timely updates from your favorite products.</p>
-                            <form action="#">
-                                <div class="input-group input-group-round">
-                                    <input type="email" class="form-control form-control-white" placeholder="Your Email Address" aria-label="Email Adress" required>
-                                    <div class="input-group-append">
-                                        <button class="btn" type="submit"><span>go</span></button>
-                                    </div><!-- .End .input-group-append -->
-                                </div><!-- .End .input-group -->
-                            </form>
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input" id="register-policy-2" required>
-                                <label class="custom-control-label" for="register-policy-2">Do not show this popup again</label>
-                            </div><!-- End .custom-checkbox -->
-                        </div>
-                    </div>
-                    <div class="col-xl-2-5col col-lg-5 ">
-                        <img src="assets/images/popup/newsletter/img-1.jpg" class="newsletter-img" alt="newsletter">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-   
+<style>
+    .product-item {
+    min-height: 300px; /* Adjust the value as needed */
+}
+.products-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between; /* or other appropriate value */
+}
+.product-item {
+    margin-bottom: 20px; /* Adjust the value as needed */
+}
+.product-image {
+    width: 100%;
+    height: auto;
+}
+
+</style>
 
 <%-include('../layouts/footbar.ejs')%>
 <%-include('../layouts/footer.ejs')%>

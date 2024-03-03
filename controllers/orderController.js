@@ -2,12 +2,15 @@ const Order = require('../models/orderModel');
 const User = require("../models/userModel");
 const Product = require('../models/productModel');
 const Cart = require('../models/cartModel');
+const Wallet = require('../models/walletModel')
 
 const loadOrderList = async (req,res)=>{
     try {
         //Fetch orders from the database
-        const orders = await Order.find().populate('userid','name')
+        const orders = await Order.find().populate('userId','name')
         const products = await Product.find();
+
+        //console.log(orders);
         //console.log(products);
         res.render('orderList',{orders,products})
     } catch (error) {
@@ -16,51 +19,72 @@ const loadOrderList = async (req,res)=>{
 
 }
 
-// const loadOrderList = async (req, res) => {
+
+
+// const updateOrderStatus = async (req, res) => {
 //     try {
-//         // Fetch orders from the database, populate user name, and product information
-//         const orders = await Order.find().populate({
-//             path: 'userid',
-//             select: 'name',
-//         }).populate({
-//             path: 'products.productid', // Assuming 'products' is the array field in your Order model
-//             model: 'Products', // Replace 'Product' with the actual model name for the products
-//             select: 'name price quantity date image', // Include 'image' in the select fields
-//         });
+//         const { orderId, newStatus } = req.body;
 
+//         // Find and update the order status in the database
+//         await Order.findByIdAndUpdate(orderId, { 'products.0.orderStatus': newStatus });
 
-//         //console.log(orders.product.price);
-//         res.render('orderList', { orders });
-//     } catch (error) {
-//         console.log(error.message);
-//     }
-// };
-
-
-// const updateOrderStatus = async(req,res)=>{
-//     try {
-//         const {orderId,newStatus} = req.body;
-
-//         //Find and update the order status in the database
-//         await Order.findByIdAndUpdate(orderId,{'products.0.orderStaus':newStatus});
-//         console.log('Recieved request to update order status:',orderId,newStatus);
-
-//         //Send a success response
+//         // Send a success response
 //         res.status(200).json({ message: 'Order status updated successfully' });
-
 //     } catch (error) {
 //         // Handle errors and send an error response
 //         console.error('Error updating order status:', error);
 //         res.status(500).json({ error: 'Internal server error' });
 //     }
-// }
+// };
+
+// Define your route
 
 const updateOrderStatus = async (req, res) => {
     try {
-        const { orderId, newStatus } = req.body;
+        //console.log("Inside updateOrderStatus fn");
+        const { orderId, productId, newStatus } = req.body;
+        //console.log("newStatus: ", newStatus);
+        
+        // Find the order by its ID
+        const order = await Order.findById(orderId);
 
-        // Find and update the order status in the database
-        await Order.findByIdAndUpdate(orderId, { 'products.0.orderStatus': newStatus });
+        if (!order) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+
+        // Find the product within the order by its ID
+        const product = order.products.find(prod => prod._id == productId);
+
+        if (!product) {
+            return res.status(404).json({ error: 'Product not found in the order' });
+        }
+
+        // If the new status is 'Cancelled' or 'Returned' and payment mode is 'razorpay' or 'wallet'
+        if ((newStatus === 'Cancelled' || newStatus === 'Returned') && 
+            (order.paymentMode === 'razorpay' || order.paymentMode === 'wallet')) {
+            // Fetch user's wallet details
+            const wallet = await Wallet.findOne({ user: order.userId });
+
+            // Update wallet balance and transaction history
+            wallet.balance += product.total;
+            wallet.walletHistory.push({
+                amount: product.total,
+                type: 'Credit',
+                reason: `Order ${newStatus === 'Cancelled' ? 'cancellation' : 'return'} refund`,
+                orderId: orderId,
+                orderId2: order.orderId,
+                date: new Date()
+            });
+
+            // Save the updated wallet balance and transaction history
+            await wallet.save();
+        }
+
+        // Update the status of the found product
+        product.orderStatus = newStatus;
+
+        // Save the updated order
+        await order.save();
 
         // Send a success response
         res.status(200).json({ message: 'Order status updated successfully' });
@@ -70,8 +94,6 @@ const updateOrderStatus = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
-
-// Define your route
 
 
 

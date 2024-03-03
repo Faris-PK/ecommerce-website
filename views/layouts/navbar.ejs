@@ -44,22 +44,21 @@
                 <nav class="main-nav ">
                     <ul class="menu sf-arrows ml-3">
                         <li class="megamenu-container active">
-                            <a href="./home" class="sf-with-ul">Home</a>
+                            <a href="/home" class="sf-with-ul">Home</a>
                         </li>
                         <li>
-                            <a href="product.html" class="sf-with-ul">Product</a>
+                            <a href="/shop" class="sf-with-ul">Shop</a>
                             <div class="megamenu megamenu-sm">
                                 <div class="row no-gutters">
                                     <div class="col-md-6">
                                         <div class="menu-col">
                                             <div class="menu-title">Product Details</div><!-- End .menu-title -->
                                             <ul>
-                                                <li><a href="/sofa">Sofas</a></li>
-                                                <li><a href="/sofa">Chair</a></li>
-                                                <li><a href="/sofa">Table</a></li>
-                                                <li><a href="/sofa">Lights</a></li>
-                                                <li><a href="/sofa">Wardrobe</a></li>
-                                                <li><a href="/sofa">Bed</a></li>
+                                                
+                                               <%categories.forEach((el) => {%>
+                                                <li><a href="/category/<%= el._id %>"><%= el.name %></a></li>
+                                               <%})%>
+                                            
                                             </ul>
                                         </div><!-- End .menu-col -->
                                     </div><!-- End .col-md-6 -->
@@ -67,10 +66,10 @@
                             </div><!-- End .megamenu megamenu-sm -->
                         </li>
                         <li>
-                            <a href="./aboutus" class="sf-with-ul">About Us</a>
+                            <a href="/aboutus" class="sf-with-ul">About Us</a>
                         </li>
                         <li>
-                            <a href="./contactus" class="sf-with-ul">Contact Us</a>
+                            <a href="/contactus" class="sf-with-ul">Contact Us</a>
                         </li>
                     </ul><!-- End .menu -->
                 </nav><!-- End .main-nav -->

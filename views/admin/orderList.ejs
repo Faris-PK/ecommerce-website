@@ -4,104 +4,166 @@
         <!-- Page wrapper  -->
         <!-- ============================================================== -->
         <div class="page-wrapper">
+            <!-- ============================================================== -->
+            <!-- Container fluid  -->
+            <!-- ============================================================== -->
             <div class="container-fluid">
+                <!-- ============================================================== -->
+                <!-- Start Page Content -->
+                <!-- ============================================================== -->
                 <div class="row">
-                    <div class="col-lg-12">
+                    <div class="col-12">
                         <div class="card">
                             <div class="card-body">
                                 <h4 class="card-title">Order Details</h4>
-                                <div class="table-responsive">
-                                    <table class="table">
-                                        <thead class="thead-light">
-                                            <tr>
-                                                <th scope="col">No</th>
-                                                <th scope="col">Customer</th>
-                                                <th scope="col">Product</th>
-                                                <th scope="col">Quantity</th>
-                                                <th scope="col">Total Price</th>
-                                                <th scope="col">Date</th>
-                                                <th scope="col">Payment Mode</th>
-                                                <th scope="col">Status</th>
-                                                <th scope="col">Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <% if (orders && orders.length > 0) { %>
-                                                <% orders.forEach((order, orderIndex) => { %>
-                                                    <% order.products.forEach((product, productIndex) => { %>
-                                                        <tr>
-                                                            <% if (productIndex === 0) { %>
-                                                                <td rowspan="<%= order.products.length %>"><%= orderIndex + 1 %></td>
-                                                                <td rowspan="<%= order.products.length %>"><strong><%= order.userid.name %></strong></td> 
-                                                            <% } %>
-                                                            <td>
-                                                                <img src="/uploads/<%= product.image %>" style="height: 100px; width: 100px;"  alt="image">
-                                                                <%= product.name %>
-                                                            </td>
-                                                            <td><%= product.quantity %></td>
-                                                            <td>₹<%= product.total %></td>
-                                                            <td><%= order.date.toLocaleDateString() %></td>
-                                                            <td><%= order.paymentMode %></td>
-                                                            <td>
-                                                                <div class="form-group mb-4">
-                                                                    <select class="custom-select mr-sm-2" id="orderStatusDropdown_<%= order._id %>" name="orderStatus">
-                                                                        <!-- Options for order status dropdown -->
-                                                                        <option value="placed" <%= product.orderStatus === 'placed' ? 'selected' : '' %>>Placed</option>
-                                                                        <option value="shipped" <%= product.orderStatus === 'shipped' ? 'selected' : '' %>>Shipped</option>
-                                                                        <option value="delivered" <%= product.orderStatus === 'delivered' ? 'selected' : '' %>>Delivered</option>
-                                                                        <option value="returnRequested" <%= product.orderStatus === 'returnRequested' ? 'selected' : '' %>>Return Requested</option>
-                                                                        <option value="returned" <%= product.orderStatus === 'returned' ? 'selected' : '' %>>Returned</option>
-                                                                        <option value="requestedCancellation" <%= product.orderStatus === 'requestedCancellation' ? 'selected' : '' %>>Requested Cancellation</option>
-                                                                        <option value="cancelled" <%= product.orderStatus === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
-                                                                    </select>
-                                                                </div>
-                                                            </td>
-                                                            <td>
-                                                                <button class="btn btn-primary update-status-btn" data-orderid="<%= order._id %>" id="updateBtn_<%= order._id %>">Update</button>
-                                                            </td>
-                                                        </tr>
-                                                    <% }) %>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <!-- <th scope="col">ID</th> -->
+                                            <th scope="col">Customer</th>
+                                            <th scope="col">Product</th>
+                                            <th scope="col">Quantity</th>
+                                            <th scope="col">Total Price</th>
+                                            <th scope="col">Date</th>
+                                            <th scope="col">Payment Mode</th>
+                                            <th scope="col">Status</th>
+                                            <th scope="col">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% if (orders && orders.length > 0) { %>
+                                            <% orders.forEach(order => { %>
+                                                <% order.products.forEach((product, index) => { %>
+                                                    <tr>
+                                                        <% if (index === 0) { %>
+                                                            <!-- Display ID and Customer only for the first product in the order -->
+                                                            
+                                                            <td rowspan="<%= order.products.length %>"><strong><%= order.userId.name %></strong></td>
+
+                                                        <% } %>
+                                                        <td><img src="/uploads/<%= product.image %>" style="height: 100px; width: 100px;"  alt="image">
+                                                            <%= product.name %></td>
+                                                        <td><%= product.quantity %></td>
+                                                        <td>₹<%= product.total %></td>
+                                                        <td><%= order.date.toLocaleDateString() %></td>
+                                                        <td><%= order.paymentMode %></td>
+                                                        
+                                                        <td>
+                                                            <div class="form-group mb-4">
+                                                                <select class="custom-select mr-sm-2" id="orderStatusDropdown_<%= order._id %>" name="orderStatus">
+                                                                    <!-- Options for order status dropdown -->
+                                                                    <option value="Placed" <%= product.orderStatus === 'Placed' ? 'selected' : '' %>>Placed</option>
+                                                                    <option value="Shipped" <%= product.orderStatus === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                                                                    <option value="Delivered" <%= product.orderStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                                                                    <option value="Return Requested" <%= product.orderStatus === 'Return Requested' ? 'selected' : '' %>>Return Requested</option>
+                                                                    <option value="Returned" <%= product.orderStatus === 'Returned' ? 'selected' : '' %>>Returned</option>
+                                                                
+                                                                    <option value="Cancelled" <%= product.orderStatus === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                                                                </select>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <!-- <button class="btn btn-primary update-status-btn" data-orderid="<%= order.id %>" id="updateBtn<%= order._id %>">Update</button> -->
+                                                            <button class="btn btn-primary update-status-btn" data-orderid="<%= order.id %>" data-productid="<%= product._id %>" id="updateBtn<%= order._id %>">Update</button>
+                                                        </td>
+                                                    </tr>
                                                 <% }) %>
-                                            <% } else { %>
-                                                <tr>
-                                                    <td colspan="9">No orders available</td>
-                                                </tr>
-                                            <% } %>
-                                        </tbody>
-                                    </table>
-                                </div>
+                                            <% }) %>
+                                        <% } else { %>
+                                            <tr>
+                                                <td colspan="9">No orders available</td>
+                                            </tr>
+                                        <% } %>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <script>
-            $(document).ready(function () {
-                // Attach a click event to the "Update" button
-                $('.update-status-btn').on('click', function () {
-                    const orderId = $(this).data('orderid');
-                    const newStatus = $('#orderStatusDropdown_' + orderId).val();
-        
-                    // Make an AJAX request to update the order status
-                    $.ajax({
-                        url: '/admin/toggleOrderStatus', // Adjust the URL based on your actual route
-                        method: 'POST',
-                        data: {
-                            orderId: orderId,
-                            newStatus: newStatus
-                        },
-                        success: function (data) {
-                            // Handle success response (if needed)
-                            console.log(data.message);
-                        },
-                        error: function (error) {
-                            // Handle error response (if needed)
-                            console.error('Error updating order status:', error.responseJSON.error);
-                        }
-                    });
-                });
+
+<!-- Modal -->
+<div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to update the order status?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="confirmUpdateBtn">Update</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        // Attach a click event to the "Update" button
+        $('.update-status-btn').on('click', function () {
+            const orderId = $(this).data('orderid');
+            const productId = $(this).data('productid');
+            const newStatus = $('#orderStatusDropdown_' + orderId).val();
+            console.log(newStatus);
+            console.log("productId:", productId);
+
+
+            // Set the orderId and newStatus as data attributes of the modal
+            $('#confirmationModal').data('orderid', orderId);
+            $('#confirmationModal').data('productid', productId);
+            $('#confirmationModal').data('newstatus', newStatus);
+
+            // Show the confirmation modal
+            $('#confirmationModal').modal('show');
+        });
+
+        // Attach a click event to the "Update" button inside the modal
+        $('#confirmUpdateBtn').on('click', function () {
+            const orderId = $('#confirmationModal').data('orderid');
+            const productId = $('#confirmationModal').data('productid');
+            const newStatus = $('#confirmationModal').data('newstatus');
+
+            // Make an AJAX request to update the order status
+            $.ajax({
+                url: '/admin/toggleOrderStatus', // Adjust the URL based on your actual route
+                method: 'POST',
+                data: {
+                    orderId: orderId,
+                    productId: productId,
+                    newStatus: newStatus
+                },
+                success: function (data) {
+                    // Handle success response (if needed)
+                    console.log(data.message);
+                    // Close the modal
+                    $('#confirmationModal').modal('hide');
+                    // Optionally show another modal or message indicating success
+                },
+                error: function (error) {
+                    // Handle error response (if needed)
+                    console.error('Error updating order status:', error.responseJSON.error);
+                    alert('Error updating order status. Please try again.');
+                    // Close the modal
+                    $('#confirmationModal').modal('hide');
+                }
             });
-        </script>      
+        });
+    });
+</script>
+
 
 <%-include('../layouts/adminFooter.ejs')%>

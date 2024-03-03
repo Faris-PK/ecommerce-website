@@ -1,0 +1,83 @@
+<%-include('../layouts/header.ejs')%>
+<%-include('../layouts/navbar.ejs')%>
+
+<style>
+    .product-item {
+    min-height: 300px; /* Adjust the value as needed */
+}
+.products-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between; /* or other appropriate value */
+}
+.product-item {
+    margin-bottom: 20px; /* Adjust the value as needed */
+}
+.product-image {
+    width: 100%;
+    height: auto;
+}
+
+</style>
+
+<div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
+    <div class="container">
+        <h1 class="page-title">Shop</h1>
+    </div><!-- End .container -->
+</div><!-- End .page-header -->
+<br>
+
+<div class="container">    
+    <div class="products-container" data-layout="fitRows">
+        <% products.forEach(product => { %>
+            <div class="product-item furniture col-6 col-md-4 col-lg-3">
+                
+                <div class="product product-4">
+                    <figure class="product-media">
+                        <a href="<%= product.quantity > 0 ? '/productdetails/' + product._id : '#' %>">
+                            <img src="<%= product.image && product.image[3] %>" alt="Product image" class="product-image">
+                        </a>
+
+                        <div class="product-action-vertical">
+                            <% if (product.quantity > 0) { %>
+                                <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
+                            <% } else { %>
+                                <span class="out-of-stock-label">Out of Stock</span>
+                            <% } %>
+                        </div><!-- End .product-action -->
+
+                        <div class="product-action">
+                            <a href="<%= product.quantity > 0 ? 'popup/quickView.html' : '#' %>" class="btn-product btn-quickview" title="Quick view"><span>quick view</span></a>
+                        </div><!-- End .product-action -->
+                    </figure><!-- End .product-media -->
+
+                    <div class="product-body">
+                        <h3 class="product-title">
+                            <a href="<%= product.quantity > 0 ? 'product.html' : '#' %>"><%= product.name %></a>
+                        </h3><!-- End .product-title -->
+                        <div class="product-price">
+                            <% if (product.quantity > 0) { %>
+                                <div class="out-price">₹<%= product.price %></div><!-- End .out-price -->
+                            <% } else { %>
+                                <span class="out-of-stock-label"><strong style="color: red;">Out of Stock</strong></span>
+                            <% } %>
+                        </div><!-- End .product-price -->
+                        <div class="product-action">
+                            <% if (product.quantity > 0) { %>
+                                <a href="#" class="btn-product btn-cart"><span>add to cart</span><i class="icon-long-arrow-right"></i></a>
+                            <% } %>
+                        </div><!-- End .product-action -->
+                    </div><!-- End .product-body -->
+                </div><!-- End .product -->
+                
+            </div><!-- End .product-item -->
+        <% }); %>
+    </div><!-- End .products-container -->
+</div><!-- End .container -->
+
+
+
+
+
+
+<%-include('../layouts/footer.ejs')%>

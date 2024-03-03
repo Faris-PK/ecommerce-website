@@ -5,7 +5,8 @@ const multer = require('multer');
 
 const loadProductList = async (req,res)=>{
     try {
-        const products = await Products.find();
+        const products = await Products.find().populate('category');
+
         //console.log(products);
         res.render('productList',{'products':products})
     } catch (error) {

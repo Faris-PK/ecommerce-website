@@ -1,0 +1,123 @@
+<%-include('../layouts/adminHeader.ejs')%>
+<%-include('../layouts/adminSidebar.ejs')%>
+
+<div class="page-wrapper">
+    <br>
+    <div class="container" style="display: flex; justify-content: right;">
+        <a href="/admin/addcoupon" class="btn btn-success">Add Coupon</a>
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Coupons</h4>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">No</th>
+                                        <th scope="col">Coupon code</th>
+                                        <th scope="col">Discount</th>
+                                        <th scope="col">Min amount</th>
+                                        <th scope="col">Coupon description</th>
+                                        <th scope="col">Start date</th>
+                                        <th scope="col">Expiry date</th>
+                                        <th scope="col">Action</th>
+                                        <th scope="col">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if(Array.isArray(coupons) && coupons.length > 0) { %>
+                                        <% coupons.forEach(function(coupon, index) { %>
+                                            <tr>
+                                                <td><%= index + 1 %></td>
+                                                <td><%= coupon.couponCode %></td>
+                                                <td><%= coupon.discountAmount %></td>
+                                                <td><%= coupon.minOrderAmount %></td>
+                                                <td><%= coupon.couponDescription %></td>
+                                                <td><%= coupon.startDate %></td>
+                                                <td><%= coupon.expiryDate %></td>
+                                                <td>
+                                                    <a href="/admin/editCoupon/<%= coupon._id %>" class="edit-coupon">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                </td>
+                                                <td>
+                                                    <a href="#" class="btn-status-toggle" data-couponid="<%= coupon._id %>">
+                                                        <% if (coupon.is_listed) { %>
+                                                            <span class="badge badge-success">Listed</span>
+                                                        <% } else { %>
+                                                            <span class="badge badge-danger">Unlisted</span>
+                                                        <% } %>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        <% }); %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="9">No Coupons Available</td>
+                                        </tr>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- LISTING AND UNLISTING -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const statusButtons = document.querySelectorAll('.btn-status-toggle');
+
+        statusButtons.forEach(button => {
+            button.addEventListener('click', function (event) {
+                event.preventDefault();
+
+                const couponId = this.getAttribute('data-couponid');
+                togglecouponStatus(couponId, this);
+            });
+        });
+
+        function togglecouponStatus(couponId, button) {
+            // Send Fetch API request to update the product status
+            fetch(`/admin/togglecouponStatus/${couponId}`, {
+                method: 'POST',
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update UI based on the server response
+                if (data.success) {
+                    updateUI(button, data.coupon.is_listed);
+                } else {
+                    console.error('Error toggling coupon status:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error toggling coupon status:', error);
+            });
+        }
+
+        function updateUI(button, isListed) {
+            // Update the button text and badge based on the new status
+            const badge = button.querySelector('.badge');
+            if (isListed) {
+                badge.textContent = 'Listed';
+                badge.classList.remove('badge-danger');
+                badge.classList.add('badge-success');
+            } else {
+                badge.textContent = 'Unlisted';
+                badge.classList.remove('badge-success');
+                badge.classList.add('badge-danger');
+            }
+        }
+    });
+</script>
+
+
+
+<%-include('../layouts/adminFooter.ejs')%>

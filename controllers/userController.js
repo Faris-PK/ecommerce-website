@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const userOTPVerification = require('../models/userOTPVerification');
 const Products = require('../models/productModel');
 const Order = require('../models/orderModel');
+const Wallet = require('../models/walletModel');
 const Token = require('../models/tokenModel');
 const Category = require('../models/categoryModel');
 
@@ -51,6 +52,10 @@ const insertUser = async (req, res) => {
             });
 
               await user.save();
+
+            // Create a wallet for the new user
+            const newWallet = new Wallet({ user: user._id });
+            await newWallet.save();
 
             sendOTPVerificationEmail(user, res);
             // if(userData){
@@ -212,12 +217,14 @@ const verifyLogin = async (req, res) => {
                     req.session.userid = userData._id;
                     req.session.email = email; // Store user email in the session
                     req.session.name = userData.name; // Store username in the session
-                    req.flash('success', 'Welcome To Decora!');
+                    req.flash('light', 'Welcome To Decora!');
                     res.redirect('/');
 
                 }
             } else {
-                res.render('login', { message: "Email and Password is incorrect...!!!" });
+                // res.render('login', { message: "Email and Password is incorrect...!!!" });
+                req.flash('error', 'Email and Password is incorrect...!!!');
+                    res.redirect('/login');
             }
         } else {
             res.render('login', { message: "Email and Password is incorrect...!!!" });
@@ -282,20 +289,72 @@ const loadAboutUs = async (req, res) => {
 }
 
 
+// const loadHome = async (req, res) => {
+//     try {
+//         const email = req.session.email;
+//         const username = req.session.name; // Retrieve username from the session
+//         const products = await Products.find({ is_listed: true })
+//             // .populate({
+//             //     path: 'category',
+//             //     select: 'name is_listed'
+//             // });
+//         const categories = await Category.find({ is_listed: true });
+//         //console.log(categories);
+        
+        
+//         res.render('home', { email, username, userAuthenticated: req.session.userid, products,categories });
+//     } catch (error) {
+//         console.log(error.message);
+//     }
+// };
+
+
+// const loadHome = async (req, res) => {
+//     try {
+//         const email = req.session.email;
+//         const username = req.session.name;
+
+//         // Fetch products and categories with is_listed: true
+//         const products = await Products.find({ is_listed: true });
+//         const categories = await Category.find({ is_listed: true });
+
+//         // Check if there are any products or categories
+//         if (products.length === 0 || categories.length === 0) {
+//             // Handle the case when there are no products or categories
+//             return res.render('home', { email, username, userAuthenticated: req.session.userid, products: [], categories: [] });
+//         }
+
+//         // Render the home page with products and categories
+//         res.render('home', { email, username, userAuthenticated: req.session.userid, products, categories });
+//     } catch (error) {
+//         console.log(error.message);
+//         res.render('errorPage'); // Handle error rendering
+//     }
+// };
+
 const loadHome = async (req, res) => {
     try {
         const email = req.session.email;
-        const username = req.session.name; // Retrieve username from the session
-        const products = await Products.find({ is_listed: true })
-            .populate({
-                path: 'category',
-                select: 'name is_listed'
-            });
+        const username = req.session.name;
+
+        // Fetch products and categories with is_listed: true
+        const products = await Products.find({ is_listed: true }).populate('category', 'is_listed');
         const categories = await Category.find({ is_listed: true });
-        //console.log(category);
-        res.render('home', { email, username, userAuthenticated: req.session.userid, products,categories });
+
+        // Filter out products that belong to unlisted categories
+        const filteredProducts = products.filter(product => product.category.is_listed);
+
+        // Check if there are any products or categories
+        if (filteredProducts.length === 0 || categories.length === 0) {
+            // Handle the case when there are no products or categories
+            return res.render('home', { email, username, userAuthenticated: req.session.userid, products: [], categories: [] });
+        }
+
+        // Render the home page with filtered products and categories
+        res.render('home', { email, username, userAuthenticated: req.session.userid, products: filteredProducts, categories });
     } catch (error) {
         console.log(error.message);
+        res.render('errorPage'); // Handle error rendering
     }
 };
 
@@ -326,113 +385,7 @@ const loadProductDetails =async(req,res)=>{
     }
 }
 
-const addAddress = async (req,res)=>{
-    try {
-        const user = await User.findById(req.session.userid);
 
-        //Add the address details to the user's address array 
-        user.address.push({
-            name:req.body.name,
-            housename:req.body.housename,
-            street:req.body.street,
-            city:req.body.city,
-            pin:req.body.pin,
-            mobile:req.body.mobile
-        });
-
-        //Sve the user with the new address to DB
-
-        const svaeUser = await user.save();
-        res.status(200).json({message:'Address svaed Successfully',user:svaeUser});
-    } catch (error) {
-        console.error('Error saving address:',error);
-        res.status(500).json({message:'Internal server error'});
-    }
-}
-
-
-const deleteAddress = async (req,res)=>{
-    try {
-        const userId = req.session.userid;
-        const addressId = req.params.addressId;
-
-        //Find the user and remove the specified address
-        const user = await User.findById(userId);
-        user.address.pull({_id:addressId});
-        await user.save();
-
-        res.json({success:true,message:'Address deleted succcessfully'});
-
-
-    } catch (error) {
-        console.error('Error deleting address:',error); 
-        res.status(500).json({success:false,message:'Faoled to delete address.'});      
-    }
-}
-
-const userProfile = async (req, res) => {
-    try {
-        const userId = req.session.userid;
-        const user = await User.findById(userId);
-        const userAddress = user.address;
-        //console.log(userAddress);
-        const email = req.session.email;
-        const username = req.session.name;
-
-        const order = await Order.find({ userid: userId }).populate({
-            path: 'products.productid', // Assuming 'products' is the array field in your Order model
-            model: 'Order', // Replace 'Product' with the actual model name for the products
-            select: 'name price quantity date image orderStatus'
-        });
-
-        //console.log(order);
-
-        res.render('userProfile', { user, userAddress, order ,email,username});
-    } catch (error) {
-        console.log(error.message);
-    }
-};
-
-
-const loadEditAddresss = async (req,res) =>{
-    try {
-        const userId = req.session.userid;
-        const addressId = req.params.id;
-        const user = await User.findById(userId);
-        const address = user.address.id(addressId);
-        res.json(address)
-    } catch (error) {
-        console.error('Error fetching address details:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-}
-
-const updateAddress = async (req,res)=>{
-    try {
-        const userId = req.session.userid;
-        const addressId = req.params.id;
-        const updateAddress = req.body;
-        const user = await User.findById(userId);
-        const address = user.address.id(addressId);
-
-        //Update the address feilds
-
-        address.name = updateAddress.name;
-        address.housename = updateAddress.housename;
-        address.street = updateAddress.street;
-        address.city = updateAddress.city;
-        address.pin = updateAddress.pin;
-        address.mobile = updateAddress.mobile;
-
-        await user.save();//Save the update user details
-        res.json({success:true});//Send success Response
-
-    } catch (error) {
-        console.error('Error updating address:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-       
-}
 
 // const editUser = async (req, res) => {
 //     try {
@@ -656,6 +609,55 @@ const updatePassword = async (req, res) => {
     }
 };
 
+// Update your controller (userController.js)
+const loadCategoryProducts = async (req, res) => {
+    try {
+        const email = req.session.email;
+        const username = req.session.name;
+        const categoryId = req.params.categoryId;
+
+        // Fetch the selected category and its products with is_listed: true
+        const category = await Category.findOne({ _id: categoryId, is_listed: true });
+        const products = await Products.find({ category: categoryId, is_listed: true }).populate('category');
+
+        // Check if the category exists and has products
+        if (!category || products.length === 0) {
+            // Handle the case when the category or products are not found
+            return res.render('errorPage');
+        }
+
+       // console.log('cattt',category);
+
+        res.render('allProducts', { email, username, userAuthenticated: req.session.userid, category, products });
+    } catch (error) {
+        console.log(error.message);
+        //res.render('errorPage'); // Handle error rendering
+    }
+};
+
+const loadShop = async (req, res) => {
+    try {
+        // Fetch products and categories with is_listed: true
+        const products = await Products.find({ is_listed: true }).populate('category', 'is_listed');
+        const categories = await Category.find({ is_listed: true });
+
+        // Filter out products that belong to unlisted categories
+        const filteredProducts = products.filter(product => product.category.is_listed);
+
+        // Check if there are any products or categories
+        if (filteredProducts.length === 0 || categories.length === 0) {
+            // Handle the case when there are no products or categories
+            return res.render('shop', { products: [], categories: [] });
+        }
+
+        // Render the shop page with filtered products and categories
+        res.render('shop', { products: filteredProducts, categories });
+    } catch (error) {
+        console.log(error.message);
+        res.render('errorPage'); // Handle error rendering
+    }
+};
+
 
 
 module.exports = {
@@ -672,12 +674,6 @@ module.exports = {
     loadHome,
     resendOTP,
     loadProductDetails,
-    addAddress,
-    deleteAddress,
-    userProfile,
-    loadEditAddresss,
-    updateAddress,
-    //ditUser,
     updateUser,
     loadForgotPassword,
     submitForgotPassword,
@@ -685,7 +681,9 @@ module.exports = {
     submitResetPassword,
     //loadForgotPasswordConfirmation,
     loadPasswordUpdate,
-    updatePassword
+    updatePassword,
+    loadCategoryProducts,
+    loadShop
 
    
 }

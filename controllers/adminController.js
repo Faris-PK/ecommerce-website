@@ -34,14 +34,14 @@ const adminVerifyLogin = async(req, res) => {
 
 
 
-const loadDashboard = async (req,res) => {
-    try{
-        res.render('adminDashboard');
-    } catch (error) {
-        console.log(error);
-    }
+// const loadDashboard = async (req,res) => {
+//     try{
+//         res.render('adminDashboard');
+//     } catch (error) {
+//         console.log(error);
+//     }
     
-}
+// }
 
 const adminLogout = async (req,res)=>{
     try {
@@ -91,7 +91,7 @@ const toggleUserStatus = async(req,res)=>{
 module.exports = {
     loadAdminLogin,
     adminVerifyLogin,
-    loadDashboard,
+    //loadDashboard,
     adminLogout,
     loadUserList,
     toggleUserStatus,

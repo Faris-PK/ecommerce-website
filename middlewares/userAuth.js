@@ -1,4 +1,5 @@
-const User = require('../models/userModel')
+const User = require('../models/userModel');
+const Category = require('../models/categoryModel')
 
 const isLogin = async(req, res, next) => {
     try{
@@ -30,6 +31,8 @@ const isAuthenticated = async (req, res, next) => {
     try {
         if (req.session && req.session.userid) {
             res.locals.userAuthenticated = true;
+            res.locals.email= req.session.email
+            res.locals.username = req.session.email
             return next();
         } else {
             res.locals.userAuthenticated = false;
@@ -65,10 +68,28 @@ const checkBlockedStatus = async (req, res, next) => {
     }
 };
 
+const loadCategories = async (req, res, next) => {
+    try {
+        // Fetch categories with is_listed: true
+        const categories = await Category.find({ is_listed: true });
+
+        // Make categories available in response locals
+        res.locals.categories = categories;
+
+        //console.log('Middle cat:',categories);
+
+        next();
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send("Internal Server Error");
+    }
+};
+
 
 module.exports = {
     isLogin,
     isLogout,
     isAuthenticated,
-    checkBlockedStatus
+    checkBlockedStatus,
+    loadCategories
 }

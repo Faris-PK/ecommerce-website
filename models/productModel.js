@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const productSchema = mongoose.Schema({
     name:{
@@ -9,14 +9,15 @@ const productSchema = mongoose.Schema({
         type:Number,
         required: true
     },
-    quantity: {
-        type: Number,
-        required: true,
+    quantity:{
+        type:Number,
+        required: true
     },
-    category:{
-        type: String,
-        //ref: 'Category', // Reference to the Category model
-        required:true,
+   
+    category: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref:'Category',
+        required: true
     },
     description:{
         type:String,
@@ -26,12 +27,12 @@ const productSchema = mongoose.Schema({
         type:[String],
         required:true
     },
-    is_listed:{
-        type:Boolean,
+    is_listed: {
+        type: Boolean,
         default:true
     }
 });
 
-const Products = mongoose.model('Products',productSchema);
+const Products = mongoose.model('Products', productSchema);
 
-module.exports = Products 
+module.exports = Products
