@@ -21,6 +21,7 @@ app.use(session({
   saveUninitialized: true,
   cookie: { secure: false } // Set to true if using HTTPS
 }));
+app.use(express.json());
 
 //For user Routes
 const userRoute = require('./routes/userRoute');

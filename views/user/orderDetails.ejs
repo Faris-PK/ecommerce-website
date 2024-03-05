@@ -127,8 +127,8 @@ h3, h6 {
                                             <img src="/uploads/<%=product.image %>" alt="" width="100" class="img-fluid">
                                         </div>
                                         <div class="flex-lg-grow-1 ms-3">
-                                            <h6 class="small mb-1"><a href="#" class="text-reset"><strong><%= product.name %></strong></a></h6>
-                                            <span class="small">Quantity: <%= product.quantity %></span>
+                                            <h6 class="small mb-1 ml-3"><a href="#" class="text-reset"><strong><%= product.name %></strong></a></h6>
+                                            <span class="small ml-3">Quantity: <%= product.quantity %></span>
                                             <span class="badge rounded-pill text-white 
                                                 <% switch (product.orderStatus) { 
                                                     case 'Placed': %>bg-info<% break; 
@@ -140,7 +140,7 @@ h3, h6 {
                                                 <%= product.orderStatus %>
                                             </span>
                                             <br>
-                                            <a href="#" class="cancel-link" 
+                                            <a href="#" class="cancel-link ml-3" 
                                                 data-product-id="<%= product._id %>" 
                                                 data-index="<%= index %>" 
                                                 <% if(product.orderStatus !== 'Placed' && product.orderStatus !== 'Shipped') { %> style="display: none;" <% } %>

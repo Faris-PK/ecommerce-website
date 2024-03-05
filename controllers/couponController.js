@@ -139,7 +139,7 @@ const applyCoupon = async (req, res) => {
        // console.log("CRRENT UDSREGBF:",currentUser);
         const { couponCode } = req.body;
 
-        console.log("COUPONcOOODE",couponCode);
+        //console.log("COUPONcOOODE",couponCode);
 
         const userCart = await Cart.findOne({ userid: userId }).populate(
             "product.productid"

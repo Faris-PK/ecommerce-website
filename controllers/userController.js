@@ -491,8 +491,8 @@ const loadResetPassword = async (req,res)=>{
     try {
         const token = req.params.token; // Assuming you use '/reset-password/:token' in your route
         const tokenData = await Token.findOne({ Token: token });
-        console.log(Token.find());
-        console.log("TokenData:",tokenData);
+        //console.log(Token.find());
+       // console.log("TokenData:",tokenData);
         if (!tokenData) {
             req.flash('error', 'Invalid or expired token.');
             return res.redirect('/forgot-password');

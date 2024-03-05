@@ -54,7 +54,8 @@ const checkBlockedStatus = async (req, res, next) => {
 
             if (userData && userData.is_blocked) {
                 // Log out the user and redirect to the login page
-                req.session.destroy();
+                // req.session.destroy();
+                req.session.userid = null
                 //req.flash('error', 'Admin has blocked this account. Please contact support for assistance.');
                 return res.redirect('/login');
             }

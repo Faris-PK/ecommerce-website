@@ -118,31 +118,64 @@ const addToCart = async (req, res) => {
     }
 };
 
-const removeFromCart = async(req,res)=>{
+// const removeFromCart = async(req,res)=>{
+//     try {
+//         const userId = req.session.userid;
+//         const productIdToRemove = req.params.productId;
+
+//         //Find the cart for the user 
+//         const userCart = await Cart.findOne({userid:userId});
+        
+//         if (userCart) {
+//             //Remove the product from the product array
+//             userCart.product = userCart.product.filter(product=>String(product.productid) !== productIdToRemove);
+
+//             //Save the updated cart
+//             await userCart.save();
+
+//             res.status(200).json({ message: 'Product removed from cart successfully' })
+
+//         } else {
+//             res.status(404).json({error:'Cart not found'});
+//         }
+//     } catch (error) {
+//         console.log(error)
+//     }
+// }
+
+const removeFromCart = async (req, res) => {
     try {
         const userId = req.session.userid;
         const productIdToRemove = req.params.productId;
 
-        //Find the cart for the user 
-        const userCart = await Cart.findOne({userid:userId});
-        
-        if (userCart) {
-            //Remove the product from the product array
-            userCart.product = userCart.product.filter(product=>String(product.productid) !== productIdToRemove);
+        // Find the cart for the user
+        const userCart = await Cart.findOne({ userid: userId });
 
-            //Save the updated cart
+        if (userCart) {
+            // Remove the product from the product array
+            userCart.product = userCart.product.filter(
+                (product) => String(product.productid) !== productIdToRemove
+            );
+
+            // Recalculate subTotal and grandTotal
+            userCart.subTotal = userCart.product.reduce(
+                (total, product) => total + product.totalPrice,
+                0
+            );
+            userCart.grandTotal = userCart.subTotal - userCart.offerDiscount - userCart.couponDiscount;
+
+            // Save the updated cart
             await userCart.save();
 
-            res.status(200).json({ message: 'Product removed from cart successfully' })
-
+            res.status(200).json({ message: 'Product removed from cart successfully' });
         } else {
-            res.status(404).json({error:'Cart not found'});
+            res.status(404).json({ error: 'Cart not found' });
         }
     } catch (error) {
-        console.log(error)
+        console.log(error);
+        res.status(500).json({ error: 'Internal server error' });
     }
-}
-
+};
 
 
 
@@ -227,6 +260,7 @@ const checkoutAddress = async(req, res) => {
 }
 
 
+
 const placeOrder = async (req,res)=>{
     try {
         const userId = req.session.userid;
@@ -234,7 +268,11 @@ const placeOrder = async (req,res)=>{
         const selectedAddress = req.body.selectedAddress;
         const paymentId = req.body.paymentId;
         const cartId = req.session.userid;
-
+        console.log('userId',userId);
+        console.log('paymentMethod',paymentMethod);
+        console.log('selectedAddress',selectedAddress);
+        console.log('paymentId',paymentId);
+        console.log('cartid',cartId);
         const cart = await Cart.findOne({ userid: cartId });
         if (!cart) {
             console.error('Cart not found for user:', userId);
@@ -396,6 +434,7 @@ const placeOrder = async (req,res)=>{
    
 
 }
+
 
 
 //Function to generate a unique ID (OD + timestamp + random number)

@@ -27,7 +27,7 @@
     <div class="page-content">
         <div class="checkout">
             <div class="container" id="couponReload">
-                <div class="cart_discount mb-4 col-lg-5 p-3 bg-light rounded" >
+                <div class="cart_discount mb-4 col-lg-5 p-3 bg-light rounded">
                     <h6 class="text-uppercase mb-3 text-primary">Discount codes</h6>
                     <form class="position-relative">
                         <div class="input-group">
@@ -44,7 +44,7 @@
                         </div>
                     </form>
                 </div>
-                <form action="/placeorder" method="POST">
+                
                     <div class="row">
                         
                         <div class="col-lg-9">
@@ -149,7 +149,7 @@
                                 <div id="warningMessage" style="display: none;"></div>
                         
                                 <!-- Button to trigger checkout -->
-                                <button type="submit" class="btn btn-outline-primary-2 btn-order btn-block" >
+                                <button type="button" id="procced_to" class="btn btn-outline-primary-2 btn-order btn-block" >
                                     <span class="btn-text">Place Order</span>
                                     <span class="btn-hover-text">Proceed to Checkout</span>
                                 </button>
@@ -157,7 +157,7 @@
                         </aside><!-- End .col-lg-3 -->
                         
                     </div><!-- End .row -->
-                </form>
+                
             </div><!-- End .container -->
         </div><!-- End .checkout -->
     </div><!-- End .page-content -->
@@ -251,7 +251,11 @@
                     $('#updatedTotalPrice').text(`Total: ₹${response.totalPrice}`).show();
                     SuccessSwal(response.message);
                     couponDiscount = response.couponDiscount;
-                    $('#couponReload').load('/checkout #couponReload')
+                    $('#couponReload').load('/checkout #couponReload', () => {
+                        reAttachEvent();
+                    })
+                   
+                    
                     // initializeButtons();
                     
                 } else if (response.limit) {
@@ -280,7 +284,10 @@
             console.log('Coupon removed successfully:', data);
             Swalfire('Coupon removed successfully');
             couponDiscount = 0;
-            $('#couponReload').load('/checkout #couponReload');
+            $('#couponReload').load('/checkout #couponReload', () => {
+                reAttachEvent();
+            });
+            
             // initializeButtons();
             
         },
@@ -317,11 +324,9 @@
 <script>
     let grandTotal = '<%= grandTotal %>';
     console.log("grandTotal: ", grandTotal);
-    document.querySelector("button[type='submit']").addEventListener("click", async function(event) {
-    
-        event.preventDefault();
-
-        
+   function reAttachEvent() {
+    document.getElementById('procced_to').addEventListener("click", async function(event) {
+    console.log('hello cod')
         let radioButton = document.querySelector('input[name="paymentMethod"]:checked');
         console.log(radioButton);
         if (radioButton) {
@@ -397,6 +402,7 @@
 
                 
                 const paymentId = generatePaymentId();
+                
 
                 try {
                     
@@ -489,10 +495,10 @@
             document.getElementById("warningMessage").style.display = "block";
         }
     });
+   }
+   reAttachEvent();
     
-    function generatePaymentId() {
-
-        
+    function generatePaymentId() {       
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
             var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
             return v.toString(16);

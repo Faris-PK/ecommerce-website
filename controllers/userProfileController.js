@@ -165,9 +165,24 @@ const orderCancel = async (req, res) => {
             { new: true }
         );
 
+        console.log('Order:',order);
+
         if (!order) {
             return res.status(404).json({ message: 'Order or product not found' });
         }
+
+        order.products.forEach((product) => {
+                
+           
+                
+                 //console.log('product.productId:',product.productid);
+                // console.log('product.quantity:',product.quantity);
+                Products.updateOne(
+                    { _id: product.productid },
+                    { $inc: { quantity: product.quantity } }
+                ).exec();
+            
+        });
 
         
         if (order.paymentMode === 'razorpay' || order.paymentMode === 'wallet') {
@@ -181,6 +196,12 @@ const orderCancel = async (req, res) => {
                 
                 if (product.orderStatus === 'Cancelled') {
                     cancelledAmount += product.total;
+                     //console.log('product.productId:',product.productid);
+                    // console.log('product.quantity:',product.quantity);
+                    // Products.updateOne(
+                    //     { _id: product.productid },
+                    //     { $inc: { quantity: product.quantity } }
+                    // ).exec();
                 }
             });
             // console.log("order.subtotal: ", order.subtotal);
@@ -203,6 +224,8 @@ const orderCancel = async (req, res) => {
                 orderId2: order.orderId,
                 date: new Date()
             });
+
+            
 
             
             await wallet.save();
