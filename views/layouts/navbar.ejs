@@ -131,11 +131,20 @@
 
 <!-- Mobile Menu -->
 <!-- Mobile Menu -->
+<!-- Mobile Menu -->
+<!-- Mobile Menu -->
 <div class="mobile-menu-overlay"></div><!-- End .mobile-menu-overlay -->
 
 <div class="mobile-menu-container">
     <div class="mobile-menu-wrapper">
         <span class="mobile-menu-close"><i class="icon-close"></i></span>
+
+        <% if (locals.userAuthenticated) { %>
+            <!-- Display username if the user is logged in -->
+            <div class="user-info text-center" >
+                <p><strong><%= username %></strong></p>
+            </div>
+        <% } %>
 
         <form action="#" method="get" class="mobile-search">
             <label for="mobile-search" class="sr-only">Search</label>
@@ -150,11 +159,6 @@
                 </li>
                 <li>
                     <a href="/allproducts" class="sf-with-ul">Shop</a>
-                    <!-- <ul>
-                        <%categories.forEach((el) => {%>
-                            <li><a href="/category/<%= el._id %>"><%= el.name %></a></li>
-                        <%})%>
-                    </ul> -->
                 </li>
                 <li>
                     <a href="/aboutus">About Us</a>
@@ -163,10 +167,10 @@
                     <a href="/contactus">Contact Us</a>
                 </li>
                 <li>
-                    <a href="/wishlist">Wishlist</a>
+                    <a href="/wishlist">Wishlist <span class="wishlist-count"><%= locals.wishlistCount %></span></a>
                 </li>
                 <li>
-                    <a href="/cart">Cart</a>
+                    <a href="/cart">Cart <span class="cart-count"><%= locals.cartCount %></span></a>
                 </li>
                 <% if (locals.userAuthenticated) { %>
                     <li>
