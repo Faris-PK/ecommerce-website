@@ -17,12 +17,14 @@
  const orderController = require('../controllers/orderController');
  const couponController = require('../controllers/couponController');
  const adminDashboardController = require('../controllers/adminDashboardController');
+ const offerController = require('../controllers/offerController')
 
  admin_route.get('/login',adminAuth.isLogout,adminController.loadAdminLogin);
  admin_route.get('/',adminAuth.isLogout,adminController.loadAdminLogin);
  admin_route.post('/loginsubmit',adminController.adminVerifyLogin);
  
  admin_route.get('/dashboard', adminAuth.isLogin, adminDashboardController.loadDashboard);
+ admin_route.post('/order-filter', adminDashboardController.filterDashboard);
  admin_route.get('/logout',adminController.adminLogout);
 
  admin_route.get('/userlist',adminAuth.isLogin,adminController.loadUserList);
@@ -52,12 +54,29 @@ admin_route.post('/salesreport', adminDashboardController.generateSalesReport);
  admin_route.get('/addcoupon',adminAuth.isLogin,couponController.loadAddCoupon);
  admin_route.post('/submitCoupon',couponController.submitCoupon);
  admin_route.post('/toggleCouponStatus/:couponId', couponController.toggleCouponStatus);
- // Edit Coupon Route
-admin_route.get('/editCoupon/:couponId', adminAuth.isLogin, couponController.loadEditCoupon);
+ admin_route.get('/editCoupon/:couponId', adminAuth.isLogin, couponController.loadEditCoupon);
+ admin_route.post('/submitEditCoupon/:couponId', couponController.editCoupon);
 
-// Submit Edit Coupon Route
-admin_route.post('/submitEditCoupon/:couponId', couponController.editCoupon);
 
- 
+//OFFER MODULE
+admin_route.get('/offer', adminAuth.isLogin, offerController.loadOffer);
+admin_route.get('/addoffer', adminAuth.isLogin, offerController.loadAddOffer);
+admin_route.post('/submitOffer', adminAuth.isLogin, offerController.addOffer);
+admin_route.get('/editoffer/:offerId', adminAuth.isLogin, offerController.loadEditOffer);
+admin_route.post('/submiteditoffer/:offerId', adminAuth.isLogin, offerController.editOffer)
+
+//PRODUCT OFFER
+admin_route.get('/selectproductoffer', adminAuth.isLogin, offerController.loadProductApplyOffer);
+admin_route.post('/applyProductOffer',adminAuth.isLogin, offerController.applyProductOffer);
+admin_route.post('/removeProductOffer',adminAuth.isLogin,offerController.removeProductOffer);
+
+//CATEGORY OFFER
+admin_route.get('/selectcategoryoffer', adminAuth.isLogin, offerController.loadCategoryApplyOffer);
+admin_route.post('/applyCategoryOffer', adminAuth.isLogin, offerController.applyCategoryOffer);
+admin_route.post('/removeCategoryOffer', adminAuth.isLogin, offerController.removeCategoryOffer);
+
+
+
+
 
  module.exports = admin_route

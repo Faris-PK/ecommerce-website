@@ -32,7 +32,7 @@ const isAuthenticated = async (req, res, next) => {
         if (req.session && req.session.userid) {
             res.locals.userAuthenticated = true;
             res.locals.email= req.session.email
-            res.locals.username = req.session.email
+            res.locals.username = req.session.username
             return next();
         } else {
             res.locals.userAuthenticated = false;

@@ -69,7 +69,7 @@
                                                 <td class="text-center"><%=user.name %></td>
                                                 <td class="text-center"><%=user.email %></td>
                                                 <td class="text-center"><%=user.mobile %></td>
-                                                <td class="text-center"><%= wallet ? wallet.balance : 'N/A' %></td> <!-- Wallet Balance value -->
+                                                <td class="text-center">₹<%= wallet ? wallet.balance : 'N/A' %></td> <!-- Wallet Balance value -->
                                             </tr>
                                         </tbody>
                                     </table>
@@ -79,7 +79,7 @@
 
                                       </div>
                                     <div class="text-center mb-4 mt-3">
-                                        <h4 class="text-center d-inline-block font-weight-bold" style="font-size: 1.5rem;">Transaction History</h4>
+                                        <h4 class="text-center d-inline-block font-weight-bold" style="font-size: 1.5rem;">Wallet Transaction History</h4>
                                         <hr class="my-1">
                                     </div>
                                     
@@ -96,7 +96,11 @@
                                             </thead>
                                             <tbody>
                                                 <% if (wallet && wallet.walletHistory) { %>
-                                                    <% wallet.walletHistory.forEach(transaction => { %>
+                                                    <% 
+                                                        // Sort the wallet history array in descending order based on the transaction date
+                                                        const sortedWalletHistory = wallet.walletHistory.sort((a, b) => b.date - a.date);
+                                                    %>
+                                                    <% sortedWalletHistory.forEach(transaction => { %>
                                                         <tr>
                                                             <td class="text-center" style="font-size: 1.3rem;"><%= transaction.date.toDateString() %></td>
                                                             <td class="text-center" style="font-size: 1.3rem;"><%= transaction.type %></td>
@@ -112,7 +116,8 @@
                                                 <% } %>
                                             </tbody>
                                         </table>
-                                    </div><!-- End .table-responsive -->                                   
+                                    </div><!-- End .table-responsive -->
+                                                                     
                                   </div>
                                 
                                 <!-- .End .tab-pane -->
@@ -126,33 +131,37 @@
                                 <div class="tab-pane fade" id="tab-orders" role="tabpanel" aria-labelledby="tab-orders-link">
                                     <div class="row mt-4">
                                         <% if (order && order.length > 0) { %>
-                                            <!-- <a href="/od/<%= order.orderid %>"> Link to the product details page -->
-                                                <% order.forEach(orderItem => { %>
-                                                    <div class="col-12">
-                                                        <div class="card card-dashboard mb-3" onclick="toggleOrderDetails('<%= orderItem._id %>')">
-                                                            <div class="card-body">
-                                                                <div class="row">
-                                                                    <% orderItem.products.forEach(product => { %>
-                                                                        <div class="col-md-4">
-                                                                            <img src="<%= product.image %>" alt="Product Image" class="img-fluid mb-3" style="max-width: 100px;">
+                                            <% 
+                                                // Sort the order array in descending order based on the order date
+                                                const sortedOrders = order.sort((a, b) => b.date - a.date);
+                                            %>
+                                            <% sortedOrders.forEach((orderItem, index) => { %>
+                                                <div class="col-12">
+                                                    <div class="card card-dashboard mb-3" onclick="toggleOrderDetails('<%= orderItem._id %>')">
+                                                        <div class="card-body">
+                                                            <div class="row">
+                                                                <% orderItem.products.forEach(product => { %>
+                                                                    <div class="col-md-2">
+                                                                        <p><strong>Order #<%= index + 1 %></strong></p>
+                                                                        <p><%= orderItem.date.toDateString() %></p>
+                                                                    </div>
+                                                                    <div class="col-md-4">
+                                                                        <img src="<%= product.image %>" alt="Product Image" class="img-fluid mb-3" style="max-width: 100px;">
+                                                                    </div>
+                                                                    <div class="col-md-6">
+                                                                        <div class="product-info">
+                                                                            <p><%= product.name %></p>
+                                                                            <p>Quantity: <%= product.quantity %> Price: ₹<%= product.price %></p>
                                                                         </div>
-                                                                        <div class="col-md-8">
-                                                                            <div class="product-info">
-                                                                                <p><%= product.name %></p>
-                                                                                <p>Quantity: <%= orderItem.products[0].quantity %> Price: ₹<%= product.price %></p>
-                                                                            </div>
-                                                                            <!-- Additional product details can be added here -->
-                                                                        </div>
-                                                                    <% }) %>
-                                                                </div><!-- End .row -->
-                                                                <a class="btn btn-primary" href="/orderdetails/<%= orderItem._id%>">View Details</a>
-                                                            </div><!-- End .card-body -->
-                                                            
-                                                        </div><!-- End .card-dashboard -->
-                                                    </div><!-- End .col-12 -->
-                                                <% }) %>
-                                            <!-- </a> -->
-                                            
+                                                                        <!-- Additional product details can be added here -->
+                                                                    </div>
+                                                                <% }) %>
+                                                            </div><!-- End .row -->
+                                                            <a class="btn btn-primary" href="/orderdetails/<%= orderItem._id%>">View Details</a>
+                                                        </div><!-- End .card-body -->
+                                                    </div><!-- End .card-dashboard -->
+                                                </div><!-- End .col-12 -->
+                                            <% }) %>
                                         <% } else { %>
                                             <div class="col-12">
                                                 <p>No orders have been made yet.</p>
@@ -160,9 +169,12 @@
                                         <% } %>
                                     </div><!-- End .row -->
                                     <a href="/shop" class="btn btn-outline-primary-2"><span>GO SHOP</span><i class="icon-long-arrow-right"></i></a>
-                                </div><!-- .End .tab-pane -->                           
+                                </div><!-- .End .tab-pane -->
+                                
+                                  
+                                                        
 
-                                <!-- .End .tab-pane -->
+                                
 
                                 <!-- <div class="tab-pane fade" id="tab-downloads" role="tabpanel" aria-labelledby="tab-downloads-link">
                                     <p>No downloads available yet.</p>
@@ -720,34 +732,53 @@
         }
     });
 </script>
+<!-- Include SweetAlert2 CSS and JS files -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
+
 <script>
     function confirmDeleteAddress(addressId) {
-        const confirmation = confirm("Are you sure you want to delete this address?");
-        if (confirmation) {
-            // Perform AJAX request or navigate to a delete route
-            // Example: Use fetch or jQuery.ajax to send a DELETE request to your server
-            fetch(`/delete-address/${addressId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Handle success or error response from the server
-                if (data.success) {
-                    // Address deleted successfully, you can update the UI or reload the page
-                    location.reload();
-                } else {
-                    alert('Failed to delete address. Please try again.');
-                }
-            })
-            .catch(error => {
-                console.error('Error deleting address:', error);
-            });
-        }
+        // Use SweetAlert2 for confirmation dialog
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'You won\'t be able to revert this!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Perform AJAX request or navigate to a delete route
+                // Example: Use fetch or jQuery.ajax to send a DELETE request to your server
+                fetch(`/delete-address/${addressId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Handle success or error response from the server
+                    if (data.success) {
+                        // Address deleted successfully, you can update the UI or reload the page
+                        location.reload();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Failed to delete address. Please try again.',
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting address:', error);
+                });
+            }
+        });
     }
 </script>
+
 
 <!-- For Edit password -->
 

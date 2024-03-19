@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const mongoosePaginate = require('mongoose-paginate-v2');
 
 const orderSchema = mongoose.Schema({
     userId:{
@@ -83,5 +84,7 @@ const orderSchema = mongoose.Schema({
         mobile: String,
     },
 })
+
+orderSchema.plugin(mongoosePaginate);
 
 module.exports = mongoose.model('Order',orderSchema);

@@ -18,6 +18,10 @@ const cartSchema = mongoose.Schema({
                 type: Number,
                 default: 1
             },
+            offerDiscount: {
+                type: Number,
+                default: 0
+            },
             totalPrice: {
                 type: Number,
                 required: true
@@ -29,10 +33,6 @@ const cartSchema = mongoose.Schema({
         }
     ],
     subTotal: {
-        type: Number,
-        default: 0
-    },
-    offerDiscount: {
         type: Number,
         default: 0
     },

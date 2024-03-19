@@ -53,6 +53,7 @@
                                     </div>
                                 </div>
                                <!-- Category -->
+                               
                                <div class="form-group">
                                 <div class="row">
                                     <label class="col-lg-2">Category</label>
@@ -61,9 +62,9 @@
                                             <div class="col-md-11">
                                                 <div class="form-group mb-4">
                                                     <select class="custom-select mr-sm-2" id="category" name="category">
-                                                        <option selected>Choose...</option>
+                                                        <option selected value="<%= product.category._id%>"><%= product.category.name%></option>
                                                         <% categories.forEach(function(category) { %>
-                                                            <option value="<%= category.name %>"
+                                                            <option value="<%= category._id %>"
                                                                 <% if (product.category && category.name === product.category.toString()) { %>selected<% } %>
                                                             ><%= category.name %></option>
                                                         <% }); %>

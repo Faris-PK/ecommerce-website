@@ -1,5 +1,11 @@
 <%-include('../layouts/header.ejs')%>
 <%-include('../layouts/navbar.ejs')%>
+<div id="loader" style="display: none;">
+    <div class="spinner-border text-primary" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+</div>
+
 <div class="page-wrapper">
     <main class="main">
         <div class="login-page bg-image pt-8 pb-8 pt-md-12 pb-md-12 pt-lg-17 pb-lg-17" style="background-image: url('assets/images/backgrounds/login-bg3.jpg')">
@@ -53,9 +59,15 @@
                                             <i class="icon-long-arrow-right"></i>
                                         </button>
                                         <div class="form-footer">
-                                            <p>Already have an account? <a href="/login">Login</a></p>
+                                            <p>Already have an account? <a href="/login"><strong>Login</strong></a></p>
                                         </div><!-- End .form-footer -->
                                     </div><!-- End .form-footer -->
+                                    <!-- Add the loader here -->
+                                      <div id="loader" style="display: none;">
+                                    <div class="spinner-border text-primary" role="status">
+                                       <span class="sr-only">Loading...</span>
+                                        </div>
+                                     </div>                                    
                                 </form>
                             </div><!-- .End .tab-pane -->
                         </div><!-- End .tab-content -->
@@ -66,6 +78,24 @@
     </main><!-- End .main -->
 </div><!-- End .page-wrapper -->
 <button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form[action="/register"]');
+        const loader = document.getElementById('loader');
+
+        form.addEventListener('submit', function(event) {
+            // Show the loader
+            loader.style.display = 'block';
+
+            // Optionally, you can add a delay to hide the loader if the redirection takes too long
+            setTimeout(function() {
+                loader.style.display = 'none';
+            }, 5000); // 5 seconds delay
+        });
+    });
+</script>
+
 <style>
     .flash-messages {
     color: red; 
@@ -74,6 +104,14 @@
 .warning{
     color: red;
 }
+#loader {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+}
+
 </style>
 <script>
     function validateForm() {
@@ -105,17 +143,43 @@
         displayWarning("mobile-warning", "Please enter a valid 10-digit mobile number");
         return false;
         }
+
         // Validate Password
-        if (password.length < 5) {
-            displayWarning("password", "Password must be at least 5 characters long");
-            return false;
+        if (password.length < 8) {
+        displayWarning("password", "Password must be at least 8 characters long");
+        return false;
         }
 
-        // Validate Confirm Password
-        if (confirmPassword !== password) {
-            displayWarning("confirm-password-warning", "Passwords do not match");
-            return false;
+        // Check for at least one uppercase letter
+        if (!/[A-Z]/.test(password)) {
+        displayWarning("password", "Password must contain at least one uppercase letter");
+        return false;
         }
+
+        // Check for at least one lowercase letter
+         if (!/[a-z]/.test(password)) {
+         displayWarning("password", "Password must contain at least one lowercase letter");
+         return false;
+         }
+
+         // Check for at least one digit
+        if (!/\d/.test(password)) {
+         displayWarning("password", "Password must contain at least one digit");
+         return false;
+         }
+
+        // Check for at least one special character
+        if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+        displayWarning("password", "Password must contain at least one special character");
+        return false;
+        }
+
+       // Validate Confirm Password
+       if (confirmPassword !== password) {
+        displayWarning("confirm-password-warning", "Passwords do not match");
+        return false;
+        }
+
 
         // If all validations pass, the form is submitted
         return true;

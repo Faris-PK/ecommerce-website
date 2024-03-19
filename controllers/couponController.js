@@ -26,10 +26,9 @@ const loadAddCoupon = async (req,res)=>{
     }
 }
 
-const submitCoupon = async (req,res) =>{
+const submitCoupon = async (req, res) => {
     try {
-        //create a new coupon instance wiith data from the form
-
+        // Extract data from the form
         const {
             couponCode,
             discountAmount,
@@ -38,26 +37,41 @@ const submitCoupon = async (req,res) =>{
             startDate,
             expiryDate
         } = req.body;
-        //console.log(req.body);
 
+        // Check if a coupon with the same code already exists
+        const existingCoupon = await Coupon.findOne({ couponCode: couponCode });
+
+        if (existingCoupon) {
+            // Coupon with the same code already exists, send a flash message
+            req.flash('error', 'Coupon with the same code already exists.');
+            return res.redirect('/admin/addcoupon');
+        }
+
+        // Create a new coupon instance with data from the form
         const newCoupon = new Coupon({
-            couponCode:couponCode,
-            discountAmount:discountAmount,
-            minOrderAmount:minOrderAmount,
-            couponDescription:couponDescription,
-            startDate:startDate,
-            expiryDate:expiryDate,
-            active:true
+            couponCode: couponCode,
+            discountAmount: discountAmount,
+            minOrderAmount: minOrderAmount,
+            couponDescription: couponDescription,
+            startDate: startDate,
+            expiryDate: expiryDate,
+            active: true
         });
 
-        //Save new coupon to the database
+        // Save the new coupon to the database
         const newCouponSaved = await newCoupon.save();
-        res.redirect('/admin/coupon')
 
+        // Redirect with a success flash message
+        req.flash('success', 'Coupon added successfully.');
+        res.redirect('/admin/coupon');
     } catch (error) {
-        
+        // Handle any errors here
+        console.error(error);
+        req.flash('error', 'An error occurred while adding the coupon.');
+        res.redirect('/admin/coupon');
     }
-}
+};
+
 
 const toggleCouponStatus = async (req, res) => {
     try {
@@ -134,82 +148,81 @@ const editCoupon = async (req, res) => {
 const applyCoupon = async (req, res) => {
     try {
         const userId = req.session.userid;
-       // console.log("USERID FROM COUPON:",userId);
         const currentUser = await User.findOne({ _id: userId });
-       // console.log("CRRENT UDSREGBF:",currentUser);
         const { couponCode } = req.body;
-
-        //console.log("COUPONcOOODE",couponCode);
 
         const userCart = await Cart.findOne({ userid: userId }).populate(
             "product.productid"
         );
         const product = userCart.product;
-        console.log();
+
         const usedCoupon = await Coupon.findOne({
             couponCode: couponCode,
             userUsed: { $in: [userId] },
             is_listed: true, // Added condition for is_listed: true
         });
 
-        //console.log(usedCoupon);
-
         if (usedCoupon) {
             console.log("Already used coupon");
-            
             return res.json({ used: true, message: "Coupon is already used" });
         }
-    
+
         const currentCoupon = await Coupon.findOne({
             couponCode: couponCode,
+            is_listed: true, // Added condition for is_listed: true
         });
-    
+
+        if (!currentCoupon) {
+            console.log("Coupon not found else");
+            return res.json({ CodeErr: true, message: "Coupon not found" });
+        }
+
         const totalAmount = product.reduce(
             (total, product) => total + product.totalPrice,
             0
         );
         const lastPrice = totalAmount - currentCoupon.discountAmount;
-    
-        if (currentCoupon) {
 
-            const today = new Date();
-            const couponStartDate = new Date(currentCoupon.startDate);
-            const couponEndDate = new Date(currentCoupon.expiryDate);
-    
-            if (today >= couponStartDate && today <= couponEndDate) {
-                if (totalAmount >= currentCoupon.minOrderAmount) {
-                    const changeTotalPrice = totalAmount - currentCoupon.discountAmount;
-                    const updatedGrandTotal = changeTotalPrice;
-                    const updatedCart = await Cart.findOneAndUpdate(
-                        { userid: userId },
-                        { $set: { 
+        const today = new Date();
+        const couponStartDate = new Date(currentCoupon.startDate);
+        const couponEndDate = new Date(currentCoupon.expiryDate);
+
+        if (today >= couponStartDate && today <= couponEndDate) {
+            if (totalAmount >= currentCoupon.minOrderAmount) {
+                const changeTotalPrice = totalAmount - currentCoupon.discountAmount;
+                const updatedGrandTotal = changeTotalPrice;
+                const updatedCart = await Cart.findOneAndUpdate(
+                    { userid: userId },
+                    {
+                        $set: {
                             couponDiscount: currentCoupon.discountAmount,
-                            grandTotal: updatedGrandTotal
-                        } },
-                        { new: true }
-                    );
-                    return res.json({ success: true, totalPrice: changeTotalPrice ,message : 'Coupon applied successfully'}); // Return to avoid multiple responses
-                } else {
-                    
-                    return res.json({
+                            grandTotal: updatedGrandTotal,
+                        },
+                    },
+                    { new: true }
+                );
+                return res.json({
+                    success: true,
+                    totalPrice: changeTotalPrice,
+                    message: 'Coupon applied successfully',
+                });
+            } else {
+                return res.json({
                     limit: true,
                     message: `Total amount must be above ₹${currentCoupon.minOrderAmount}`,
-                    });
-                }
-            } else {
-                console.log("Coupon Expired else");
-                return res.json({ expired: true, message: "Coupon is expired" });
+                });
             }
         } else {
-            console.log("Coupon not found else");
-            return res.json({ CodeErr: true, message: "Coupon not found" });
+            console.log("Coupon Expired else");
+            return res.json({ expired: true, message: "Coupon is expired" });
         }
-        } catch (error) {
-            console.log("Catch part");
-            console.error(error);
-            return res.json({ CodeErr: true, message: "Coupon not found" });
-        }
-  };
+    } catch (error) {
+        console.log("Catch part");
+        console.error(error);
+        return res.json({ CodeErr: true, message: "Coupon not found" });
+    }
+};
+
 
 const removeCoupon = async (req, res) => {
     const userId = req.session.userid;

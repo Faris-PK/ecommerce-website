@@ -1,8 +1,11 @@
 const express = require('express');
 const user_route = express();
 
+
+// user_route.set('views','./views');
+// user_route.set('view engine','ejs');
+user_route.set('views', './views');
 user_route.set('view engine','ejs');
-user_route.set('views','./views/user');
 
 
 const userController = require('../controllers/userController');
@@ -34,7 +37,7 @@ user_route.get('/contactus',userAuth.loadCategories,userAuth.isAuthenticated,use
 
 user_route.get('/',userAuth.loadCategories, userAuth.isAuthenticated,userAuth.checkBlockedStatus,navBarCount.cartAndWishlistCount,userController.loadHome);
 user_route.get('/home', userAuth.loadCategories,userAuth.isAuthenticated,userAuth.checkBlockedStatus,navBarCount.cartAndWishlistCount, userController.loadHome);
-user_route.get('/shop', userAuth.loadCategories,userAuth.isAuthenticated,userAuth.checkBlockedStatus,navBarCount.cartAndWishlistCount, userController.loadShop);
+//user_route.get('/shop', userAuth.loadCategories,userAuth.isAuthenticated,userAuth.checkBlockedStatus,navBarCount.cartAndWishlistCount, userController.loadShop);
 
 user_route.get('/productdetails/:productId',userAuth.loadCategories, userAuth.isAuthenticated,userAuth.checkBlockedStatus,navBarCount.cartAndWishlistCount,userController.loadProductDetails);
 
@@ -43,6 +46,7 @@ user_route.get('/productdetails/:productId',userAuth.loadCategories, userAuth.is
 user_route.get('/cart',userAuth.loadCategories,userAuth.isLogin,userAuth.isAuthenticated,userAuth.checkBlockedStatus,navBarCount.cartAndWishlistCount,cartController.loadCart);
 user_route.post('/addtocart',cartController.addToCart);
 user_route.delete('/removeFromCart/:productId',userAuth.isLogin,cartController.removeFromCart);
+user_route.post('/updateQuantity',cartController.cartQuantity)
 
 //for wishlist
 user_route.get('/wishlist',userAuth.loadCategories, userAuth.isLogin, userAuth.isAuthenticated,userAuth.checkBlockedStatus,navBarCount.cartAndWishlistCount, wishlistController.loadWishlist);
@@ -60,6 +64,7 @@ user_route.post('/removeCoupon', couponController.removeCoupon);
 
 
 user_route.post('/placeOrder',cartController.placeOrder);
+user_route.post('/verify-payment', cartController.verifyPayment);
 user_route.get('/orderconfirmation/:Id',userAuth.loadCategories,userAuth.isLogin,userAuth.isAuthenticated,userAuth.checkBlockedStatus,navBarCount.cartAndWishlistCount,cartController.loadOrderConfirmation)
 
 user_route.get('/profile',userAuth.loadCategories,userAuth.isLogin,userAuth.isAuthenticated,userAuth.checkBlockedStatus,navBarCount.cartAndWishlistCount,userProfileController.userProfile);
@@ -72,7 +77,7 @@ user_route.put('/edit/:id', userController.updateUser);
 
 user_route.get('/forgot-password',userAuth.loadCategories, userAuth.isLogout, userController.loadForgotPassword);
 user_route.post('/forgot-password-submit', userController.submitForgotPassword);
-user_route.get('/reset-password/:token', userController.loadResetPassword);
+user_route.get('/reset-password/:token',userAuth.loadCategories, userController.loadResetPassword);
 user_route.post('/reset-password-submit', userController.submitResetPassword);
 
 user_route.get('/edit-password',userAuth.loadCategories,userAuth.isLogin,userAuth.isAuthenticated,userAuth.checkBlockedStatus,navBarCount.cartAndWishlistCount,userController.loadPasswordUpdate);
@@ -82,9 +87,14 @@ user_route.put('/orderdetails/:orderId/products/:productId/cancel', userProfileC
 user_route.put('/orderdetails/:orderId/products/:productId/return', userProfileController.orderReturnRequest);
 
 
-// Add this route in your router
-user_route.get('/category/:categoryId',userAuth.loadCategories,userAuth.isAuthenticated, userAuth.checkBlockedStatus, navBarCount.cartAndWishlistCount, userController.loadCategoryProducts);
+user_route.get('/invoice/:Id', userAuth.loadCategories, userAuth.isLogin, userAuth.isAuthenticated, userAuth.checkBlockedStatus, navBarCount.cartAndWishlistCount, userProfileController.loadInvoiceDetails);
 
+user_route.post('/continue-payment', cartController.continuePayment);
+user_route.post('/continue-verify-payment', cartController.continueVerifyPayment);
+
+// Add this route in your router
+//user_route.get('/category/:categoryId',userAuth.loadCategories,userAuth.isAuthenticated, userAuth.checkBlockedStatus, navBarCount.cartAndWishlistCount, userController.loadCategoryProducts);
+user_route.get('/allproducts',userAuth.loadCategories,userAuth.isAuthenticated,userAuth.checkBlockedStatus,navBarCount.cartAndWishlistCount,userController.loadAllProducts)
 
 
 module.exports = user_route;

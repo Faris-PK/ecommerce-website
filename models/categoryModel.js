@@ -1,14 +1,18 @@
 const mongoose = require('mongoose');
 
 const categorySchema = mongoose.Schema({
-    name:{
-        type:String,
-        required:true
+    name: {
+        type: String,
+        required: true
     },
-    is_listed:{
-        type:Boolean,
-        default:true
+    offer: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Offer'
+    },
+    is_listed: {
+        type: Boolean,
+        default: true
     }
-})
+});
 
-module.exports = mongoose.model('Category',categorySchema);
+module.exports = mongoose.model('Category', categorySchema);

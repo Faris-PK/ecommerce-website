@@ -3,6 +3,7 @@ const User = require('../models/userModel');
 const Products = require("../models/productModel");
 const Order = require("../models/orderModel");
 const Wallet = require('../models/walletModel');
+const Category = require('../models/categoryModel');
 
 const userProfile = async (req, res) => {
     try {
@@ -19,13 +20,14 @@ const userProfile = async (req, res) => {
             model: Order,
             select: 'name price quantity date image'
         });
+        //console.log('orrdeer:',order);
 
         //console.log(order);
          // Fetch wallet details
          //const wallet = await Wallet.findOne({ user: userId });
          //console.log('Wallet from profile',wallet);
 
-        res.render('userProfile', { user, userAddress, order ,wallet});
+        res.render('user/userProfile', { user, userAddress, order ,wallet});
     } catch (error) {
         console.log(error.message);
     }
@@ -131,8 +133,9 @@ const loadOrderDetails = async (req, res) => {
         const order = await Order.findOne({ _id: orderId, userId: userId }).populate({
             path: 'products.productid',
             model: Products,
-            select: 'name price quantity image' // Select the fields you need from the Product model
+            select: 'name price quantity image orderStatus' // Select the fields you need from the Product model
         });
+        
 
         //console.log(order);
         if (!order) {
@@ -140,8 +143,12 @@ const loadOrderDetails = async (req, res) => {
             return res.status(404).send('Order not found');
         }
 
+        //Check if at least one product in the order is marked as delivered
+        const isProductDelivered = order.products.some(product => product.orderStatus === 'Delivered');
+
+
         // Render the 'orderdetails' view and pass the order data to it
-        res.render('orderDetails', { order, username, email });
+        res.render('user/orderDetails', { order, username, email,isProductDelivered });
     } catch (error) { 
         console.log(error);
         res.status(500).send('Internal Server Error');
@@ -165,7 +172,7 @@ const orderCancel = async (req, res) => {
             { new: true }
         );
 
-        console.log('Order:',order);
+        //console.log('Order:',order);
 
         if (!order) {
             return res.status(404).json({ message: 'Order or product not found' });
@@ -274,7 +281,33 @@ const orderReturnRequest = async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 }
-    
+
+const loadInvoiceDetails = async (req, res) => {
+    try {
+        const userId = req.session.userid;
+        const orderId = req.params.Id; // This is the custom order ID
+        const email = req.session.email;
+        const username = req.session.name;
+
+        // Query the Order model using the custom orderId field
+        const order = await Order.findOne({ orderId: orderId, userId: userId }).populate({
+            path: 'products.productid',
+            model: Products,
+            select: 'name price quantity image'
+        });
+
+        if (!order) {
+            return res.status(404).send('Order not found');
+        }
+
+        res.render('user/invoice', { order, username, email });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send('Internal Server Error');
+    }
+};
+
+
 
 
     
@@ -287,7 +320,8 @@ module.exports = {
     loadEditAddresss,
     loadOrderDetails,
     orderCancel,
-    orderReturnRequest
+    orderReturnRequest,
+    //loadAllProducts
+    loadInvoiceDetails
     
-
-}
+};

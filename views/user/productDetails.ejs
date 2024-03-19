@@ -84,8 +84,22 @@
                                     </div><!-- End .rating-container -->
 
                                     <div class="product-price">
-                                        ₹<%=product.price%>
+                                        <% if (bestOffer) { %>
+                                            <div class="original-price" style="color: red; text-decoration: line-through;">
+                                                ₹<%= product.price %> <!-- Show original price in red with strikethrough -->
+                                            </div>
+                                            <div class="offer-price"> <!-- Show offer price -->
+                                                ₹<%= product.price - (product.price * (bestOffer.discountPercentage / 100)) %>
+                                                <span style="color: green;">(<%= bestOffer.discountPercentage %>% OFF)</span> <!-- Show offer percentage in green -->
+                                            </div>
+                                        <% } else { %>
+                                            <div class="offer-price">
+                                                ₹<%= product.price %> <!-- Show regular price -->
+                                            </div>
+                                        <% } %>
                                     </div><!-- End .product-price -->
+                                    
+                                    
 
                                     <div class="product-content">
                                         <p><%=product.description%></p>
@@ -107,26 +121,30 @@
                                     <div class="details-filter-row details-row-size">
                                         <label for="qty">Qty:</label>
                                         <div class="product-details-quantity">
-                                            <input type="number" id="qty" class="form-control" value="1" min="1" max="10" step="1" data-decimals="0" required>
+                                            <input type="number" id="qty" class="form-control" value="1" min="1" max="<%=product.quantity%>" step="1" data-decimals="0" required>
                                         </div><!-- End .product-details-quantity -->
                                     </div><!-- End .details-filter-row -->
-
+                                    
                                     <div class="product-details-action">
-                                        <!-- <a href="#" id="addToCartBtn" class="btn-product btn-cart" onclick="addToCart('<%=product._id%>', '<%=userId%>')">
-                                            <span>Add to Cart</span>
-                                        </a> -->
-                                        <a href="/cart" id="addToCartBtn" class="btn-product btn-cart">
-                                            <span>Add to Cart</span>
-                                        </a>
-            
+                                        <% if (product.quantity <= 0) { %>
+                                            <span class="out-of-stock-message text-danger font-weight-bold">Out of Stock</span>
+                                        <% } else { %>
+                                            <!-- <a href="#" id="addToCartBtn" class="btn-product btn-cart" onclick="addToCart('<%=product._id%>', '<%=userId%>')">
+                                                <span>Add to Cart</span>
+                                            </a> -->
+                                            <a href="/cart" id="addToCartBtn" class="btn-product btn-cart">
+                                                <span>Add to Cart</span>
+                                            </a>
+                                        <% } %>
+                                    
                                         <a href="/cart" id="viewCartBtn" class="btn-product btn-cart" style="display: none;">
                                             <span>View Cart</span>
                                         </a>
                                         <div class="details-action-wrapper">
                                             <a href="#" class="btn-product btn-wishlist" title="Wishlist" id="addToWishlistBtn"><span>Add to Wishlist</span></a>
-                        
                                         </div><!-- End .details-action-wrapper -->
                                     </div><!-- End .product-details-action -->
+                                    
                                 </div><!-- End .product-details -->
                             </div><!-- End .col-md-6 -->
                         </div><!-- End .row -->

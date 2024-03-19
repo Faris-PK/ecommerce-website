@@ -4,15 +4,19 @@ const Product = require('../models/productModel');
 const Cart = require('../models/cartModel');
 const Wallet = require('../models/walletModel')
 
-const loadOrderList = async (req,res)=>{
+
+
+const loadOrderList = async (req, res) => {
     try {
-        //Fetch orders from the database
-        const orders = await Order.find().populate('userId','name')
+        const page = parseInt(req.query.page) || 1;
+        const perPage = 4; // Set the number of orders per page
+
+        const orders = await Order.paginate({}, { page, limit: perPage, populate: 'userId', sort: { date: -1 } });
         const products = await Product.find();
 
-        //console.log(orders);
-        //console.log(products);
-        res.render('orderList',{orders,products})
+       // console.log('orderlist:',orders);
+
+        res.render('orderList', { orders: orders.docs, products, currentPage: page, totalPages: orders.totalPages });
     } catch (error) {
         console.log(error.message);
     }
@@ -21,82 +25,66 @@ const loadOrderList = async (req,res)=>{
 
 
 
-// const updateOrderStatus = async (req, res) => {
-//     try {
-//         const { orderId, newStatus } = req.body;
-
-//         // Find and update the order status in the database
-//         await Order.findByIdAndUpdate(orderId, { 'products.0.orderStatus': newStatus });
-
-//         // Send a success response
-//         res.status(200).json({ message: 'Order status updated successfully' });
-//     } catch (error) {
-//         // Handle errors and send an error response
-//         console.error('Error updating order status:', error);
-//         res.status(500).json({ error: 'Internal server error' });
-//     }
-// };
-
-// Define your route
-
 const updateOrderStatus = async (req, res) => {
     try {
         //console.log("Inside updateOrderStatus fn");
-        const { orderId, productId, newStatus } = req.body;
-        //console.log("newStatus: ", newStatus);
+        //console.log("req.body: ", req.body);
+        const { orderId, productId, newStatus,  productIdOg} = req.body;
+       // console.log("newStatus: ", newStatus);
         
-        // Find the order by its ID
         const order = await Order.findById(orderId);
 
         if (!order) {
             return res.status(404).json({ error: 'Order not found' });
         }
 
-        // Find the product within the order by its ID
         const product = order.products.find(prod => prod._id == productId);
 
         if (!product) {
             return res.status(404).json({ error: 'Product not found in the order' });
         }
 
-        // If the new status is 'Cancelled' or 'Returned' and payment mode is 'razorpay' or 'wallet'
-        if ((newStatus === 'Cancelled' || newStatus === 'Returned') && 
-            (order.paymentMode === 'razorpay' || order.paymentMode === 'wallet')) {
-            // Fetch user's wallet details
+        // Adjusted condition for updating wallet balance
+        if ((newStatus === 'Cancelled' && (order.paymentMode === 'razorpay' || order.paymentMode === 'wallet')) || 
+            newStatus === 'Returned') {
             const wallet = await Wallet.findOne({ user: order.userId });
 
-            // Update wallet balance and transaction history
             wallet.balance += product.total;
             wallet.walletHistory.push({
                 amount: product.total,
                 type: 'Credit',
-                reason: `Order ${newStatus === 'Cancelled' ? 'cancellation' : 'return'} refund`,
+                reason: Order `${newStatus === 'Cancelled' ? 'cancellation' : 'return'} refund`,
                 orderId: orderId,
                 orderId2: order.orderId,
                 date: new Date()
             });
 
-            // Save the updated wallet balance and transaction history
             await wallet.save();
         }
 
-        // Update the status of the found product
+        // Update product quantity in the product schema
+        if (newStatus === 'Returned' || newStatus === 'Cancelled') {
+            console.log("productId inside the quantity update: ", productIdOg);
+            const productToUpdate = await Product.findById({_id:productIdOg});
+            console.log("productToUpdate: ", productToUpdate);
+            if (!productToUpdate) {
+                // console.error(Product with ID: ${productId} not found.);
+                return res.status(404).json({ error: 'Product not found in the database' });
+            }
+            productToUpdate.quantity += product.quantity; // Assuming 'quantity' field exists in your Product schema
+            await productToUpdate.save();
+        }
+
         product.orderStatus = newStatus;
 
-        // Save the updated order
         await order.save();
 
-        // Send a success response
         res.status(200).json({ message: 'Order status updated successfully' });
     } catch (error) {
-        // Handle errors and send an error response
         console.error('Error updating order status:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 };
-
-
-
 
 
 

@@ -1,0 +1,136 @@
+<%-include('../layouts/header.ejs')%>
+
+<!-- views/user/invoice.ejs -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<div class="container mt-5 mb-5">
+    <div class="row d-flex justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="invoice p-5">
+                    <div class="header">
+                        <!-- Logo and Web App Name -->
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div>
+                                <img src="/assets/images/backgrounds/brand-logo.jpg" alt="Decora Furniture Logo" style="max-width: 150px;">
+                            </div>
+                            <div>
+                                <h5>DECORA FURNITURE</h5>
+                            </div>
+                        </div>
+                        <!-- End Logo and Web App Name -->
+                        <h5>Invoice for Order #<%= order.orderId %><i class="fas fa-file-invoice" style="color:green;"></i></h5>
+                        <span class="font-weight-bold d-block mt-4">Hello <%= username %></span>
+                        <span>This is your invoice for the order placed on <%= order.date.toDateString() %>.</span>
+                    </div>
+
+                    <div class="table-responsive mt-4">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% order.products.forEach(function(product) { %>
+                                    <tr>
+                                        <td><%= product.name %></td>
+                                        <td><%= product.quantity %></td>
+                                        <td>₹<%= product.price %></td>
+                                        <td>₹<%= product.quantity * product.price %></td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="summary mt-4">
+                        <div class="d-block text-muted">
+                            <strong>Subtotal:</strong> ₹<%= order.subTotal %>
+                        </div>
+                        <div class="d-block text-muted">
+                            <strong>Coupon Discount:</strong> ₹<%= order.couponDiscount %>
+                        </div>
+                        <div class="d-block text-muted">
+                            <strong>Grand Total:</strong> ₹<%= order.grandTotal %>
+                        </div>
+                    </div>
+
+                    <div class="delivery-details mt-4">
+                        <div class="d-block text-muted">
+                            <strong>Delivery Date:</strong>
+                            <span style="color: green;"><%= order.edd.toDateString() %></span>
+                        </div>
+                        <div class="d-block text-muted">
+                            <strong>Payment Mode:</strong> <%= order.paymentMode %>
+                        </div>
+                        <div class="d-block text-muted">
+                            <strong>Shipping Address:</strong>
+                            <p><%= order.address.name %></p>
+                            <p><%= order.address.housename %>, <%= order.address.street %>, <%= order.address.city %></p>
+                            <p><%= order.address.state %>, <%= order.address.pin %></p>
+                            <p>Mobile: <%= order.address.mobile %></p>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-center footer p-3">
+                        <button onclick="downloadInvoice()" class="btn btn-outline-primary-2 btn-sm btn-order mr-2 no-print">Download PDF</button>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script>
+    function downloadInvoice() {
+        // Hide non-essential elements before printing
+        document.querySelector('.footer').style.display = 'none';
+
+        // Trigger print dialog
+        window.print();
+
+        // Show elements again after printing
+        setTimeout(function() {
+            document.querySelector('.footer').style.display = 'block';
+        }, 500);
+    }
+</script>
+
+<style>
+    .invoice table {
+        border-collapse: collapse; /* Ensures borders are not doubled */
+        width: 100%; /* Full width */
+        margin-bottom: 20px; /* Space between table and summary */
+    }
+
+    .invoice table th, .invoice table td {
+        border: 2px solid #000; /* Harder border line */
+        padding: 10px; /* Adjust padding */
+        text-align: center; /* Center content */
+    }
+
+    .invoice table th {
+        background-color: #f2f2f2; /* Optional: Add background color to headers */
+    }
+
+    .invoice .summary, .invoice .delivery-details {
+        padding: 20px; /* Adjust padding for summary and delivery details */
+    }
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+    }
+
+</style>
+
+
+<%-include('../layouts/footer.ejs')%>

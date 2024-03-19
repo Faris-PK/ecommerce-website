@@ -111,56 +111,68 @@
 
 <script>
     function validateCouponForm() {
-        // Reset error messages
-        resetValidation();
+    // Reset error messages
+    resetValidation();
 
-        // Get form inputs
-        var couponCode = document.getElementById('couponCode').value;
-        var discount = document.getElementById('discount').value;
-        var minAmount = document.getElementById('minAmount').value;
-        var couponDescription = document.getElementById('couponDescription').value;
-        var startDate = document.getElementById('startDate').value;
-        var expiryDate = document.getElementById('expiryDate').value;
+    // Get form inputs
+    var couponCode = document.getElementById('couponCode').value;
+    var discount = document.getElementById('discount').value;
+    var minAmount = document.getElementById('minAmount').value;
+    var couponDescription = document.getElementById('couponDescription').value;
+    var startDate = document.getElementById('startDate').value;
+    var expiryDate = document.getElementById('expiryDate').value;
 
-        // Validate Coupon Code
-        if (!couponCode.trim()) {
-            displayError('couponCodeContainer', 'Coupon Code is required.');
-            return false;
-        }
-
-        // Validate Discount
-        if (!discount.trim()) {
-            displayError('discountContainer', 'Discount is required.');
-            return false;
-        }
-
-        // Validate Min Amount
-        if (!minAmount.trim()) {
-            displayError('minAmountContainer', 'Min Amount is required.');
-            return false;
-        }
-
-        // Validate Coupon Description
-        if (!couponDescription.trim()) {
-            displayError('couponDescriptionContainer', 'Coupon Description is required.');
-            return false;
-        }
-
-        // Validate Start Date
-        if (!startDate.trim()) {
-            displayError('startDateContainer', 'Start Date is required.');
-            return false;
-        }
-
-        // Validate Expiry Date
-        if (!expiryDate.trim()) {
-            displayError('expiryDateContainer', 'Expiry Date is required.');
-            return false;
-        }
-
-        // If all validations pass, return true
-        return true;
+    // Validate Coupon Code
+    if (!couponCode.trim()) {
+        displayError('couponCodeContainer', 'Coupon Code is required.');
+        return false;
     }
+
+    // Validate Discount
+    if (!discount.trim()) {
+        displayError('discountContainer', 'Discount is required.');
+        return false;
+    }
+
+    // Validate Min Amount
+    if (!minAmount.trim()) {
+        displayError('minAmountContainer', 'Min Amount is required.');
+        return false;
+    }
+
+    // Validate that Min Amount is greater than Discount
+    if (parseFloat(minAmount) <= parseFloat(discount)) {
+        displayError('minAmountContainer', 'Min Amount should be greater than Discount.');
+        return false;
+    }
+
+    // Validate Coupon Description
+    if (!couponDescription.trim()) {
+        displayError('couponDescriptionContainer', 'Coupon Description is required.');
+        return false;
+    }
+
+    // Validate Start Date
+    if (!startDate.trim()) {
+        displayError('startDateContainer', 'Start Date is required.');
+        return false;
+    }
+
+    // Validate Expiry Date
+    if (!expiryDate.trim()) {
+        displayError('expiryDateContainer', 'Expiry Date is required.');
+        return false;
+    }
+
+    // Validate that Start Date is before Expiry Date
+    if (new Date(startDate) >= new Date(expiryDate)) {
+        displayError('startDateContainer', 'Start Date should be before Expiry Date.');
+        return false;
+    }
+
+    // If all validations pass, return true
+    return true;
+}
 
     function resetValidation() {
         // Reset error messages

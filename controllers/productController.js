@@ -1,18 +1,19 @@
 const Products = require('../models/productModel');
 const Category = require('../models/categoryModel');
 const multer = require('multer');
+const Offer = require('../models/offerModel')
 
 
-const loadProductList = async (req,res)=>{
+const loadProductList = async (req, res) => {
     try {
         const products = await Products.find().populate('category');
 
-        //console.log(products);
-        res.render('productList',{'products':products})
+        res.render('productList', { 'products': products });
     } catch (error) {
-        console.log(error.message)
+        console.log(error.message);
     }
 }
+
 
 const loadCategory = async (req,res)=>{
     try {
@@ -94,7 +95,8 @@ const loadEditProduct = async (req, res) => {
         // console.log('Product ID:', productId);
 
         const category = await Category.find();
-        const product = await Products.findById(productId);
+        const product = await Products.findById(productId).populate('category')
+           //console.log(product);
 
         if (!product) {
             //console.log('Product not found');
@@ -112,34 +114,14 @@ const loadEditProduct = async (req, res) => {
 
 
 
-// const editProduct = async (req, res) => {
-//     try {
-//         const productId = req.params.id;
-//         const { name, price, quantity, category, description } = req.body;
 
-//         const images = req.files.map(file => file.filename);
-
-//         // Update the existing product with the new information
-//         await Products.findByIdAndUpdate(productId, {
-//             name: name,
-//             price: price,
-//             quantity: quantity,
-//             category: category,
-//             description: description,
-//             image: images
-//         });
-
-//         res.redirect('/admin/product'); // Redirect to a suitable route after successful submission
-//     } catch (error) {
-//         console.log(error.message);
-//         req.flash('err', 'Error editing product. Please try again');
-//     }
-// }
 
 const editProduct = async (req, res) => {
     try {
         const productId = req.params.id;
         const { name, price, quantity, category, description } = req.body;
+
+        //console.log('reqqqq..booody:',req.body);
 
         // Check if images are included in the form data
         const images = req.files ? req.files.map(file => file.filename) : [];
@@ -147,8 +129,11 @@ const editProduct = async (req, res) => {
         // Get the existing product
         const existingProduct = await Products.findById(productId);
 
+        const imagesToDelete = req.body.deletedImages;
+
+
         // Update the existing product with the new information
-        await Products.findByIdAndUpdate(productId, {
+        await Products.findByIdAndUpdate({_id: productId}, {
             name: name,
             price: price,
             quantity: quantity,
@@ -157,6 +142,15 @@ const editProduct = async (req, res) => {
             // Use the existing images if not provided in the form data
             image: images.length > 0 ? images : existingProduct.image
         });
+
+        if (imagesToDelete && imagesToDelete.length > 0) {
+            for (const imageFilename of imagesToDelete) {
+                await Products.updateOne({ _id: productId }, { $pull: { image: imageFilename } });
+            }
+            console.log('Images deleted successfully from the database.');
+        }
+
+
 
         res.redirect('/admin/product'); // Redirect to a suitable route after successful submission
     } catch (error) {
@@ -167,7 +161,7 @@ const editProduct = async (req, res) => {
 
 
 
-
+    
 module.exports = {
     loadProductList,
     loadCategory,

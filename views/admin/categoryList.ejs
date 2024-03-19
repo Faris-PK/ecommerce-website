@@ -18,6 +18,7 @@
                                     <tr>
                                         <th scope="col">ID</th>
                                         <th scope="col">Name</th>
+                                        <th scope="col">Offer</th>
                                         <th scope="col">Action</th>
                                         <th scope="col">Status</th>
                                     </tr>
@@ -28,6 +29,9 @@
                                             <tr>
                                                 <td><%= index + 1 %></td>
                                                 <td><%= category.name %></td>
+                                                <td>
+                                                    <button class="btn btn-info"><a href="/admin/selectcategoryoffer?id=<%= category._id %>" style="text-decoration: none;color: white;">View</a> </button>
+                                                </td>
                                                 
                                                 <td>
                                                     <a href="#" class="edit-category" data-categoryid="<%= category._id %>">
@@ -58,7 +62,7 @@
                 </div>
 
                 <!-- ADD CATEGORY modal content -->
-                <div id="signup-modal" class="modal fade" tabindex="-1" role="dialog"
+    <div id="signup-modal" class="modal fade" tabindex="-1" role="dialog"
                 aria-hidden="true">
                 <div class="modal-dialog">
                 <div class="modal-content">
@@ -74,8 +78,11 @@
                     </div>
 
                     <form class="pl-3 pr-3" id="categoryForm">
+                        <div class="alert alert-warning mt-2" id="categoryNameWarning" style="display: none;">
+                            Category Name is too long. Please use a shorter name.
+                        </div>
 
-                        <div class="form-group">
+                        <div class="form-group">                           
                             <label for="username">Category Name</label>
                             <div class="alert alert-danger mt-2" id="addCategoryError" style="display: none;"></div>
                             <input class="form-control" type="text" id="categoryName"
@@ -126,8 +133,14 @@
 
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
+
+<!-- HTML code with added categoryNameWarning element -->
+<div class="alert alert-warning mt-2" id="categoryNameWarning" style="display: none;">
+    Category Name is too long. Please use a shorter name.
+</div>
+
 <script>
-    $(document).ready(function () {
+$(document).ready(function () {
     // Listen for button click
     $('#submitBtn').click(function () {
         // Get form data
@@ -136,11 +149,22 @@
         // Check if the categoryName contains blank spaces
         if (containsBlankSpaces(categoryName)) {
             // Show error message
-            $('#categoryNameError').show();
+            $('#categoryNameError').text('Category Name should not contain blank spaces.').show();
+            $('#categoryNameWarning').hide(); // Hide warning message
             return; // Exit the function if validation fails
         } else {
             // Hide error message if validation succeeds
             $('#categoryNameError').hide();
+        }
+
+        // Check if the length of the categoryName exceeds a certain limit (e.g., 50 characters)
+        if (categoryName.length > 30) {
+            // Show warning message
+            $('#categoryNameWarning').text('Category Name is too long. Please use a shorter name.').show();
+            return; // Exit the function if validation fails
+        } else {
+            // Hide warning message if validation succeeds
+            $('#categoryNameWarning').hide();
         }
 
         // Continue with your existing logic to send AJAX request
@@ -151,12 +175,12 @@
 
         // Send AJAX request to the server
         $.ajax({
-        type: 'POST',
-        url: '/admin/save-category',
-        data: JSON.stringify(formData),
-        contentType: 'application/JSON',
-        success: function (response) {
-        if (response.success) {
+            type: 'POST',
+            url: '/admin/save-category',
+            data: JSON.stringify(formData),
+            contentType: 'application/JSON',
+            success: function (response) {
+                if (response.success) {
             console.log('Data saved successfully:', response);
             $('#signup-modal').modal('hide');
             location.reload();
@@ -169,25 +193,27 @@
                 console.error('Unknown error occurred:', response);
             }
         }
-    },
-    error: function (error) {
-        console.error('Error saving data:', error);
-    }
-});
-
-    });
-    $('#categoryName').on('input', function () {
-            $('#categoryNameError').hide();
+            },
+            error: function (error) {
+                console.error('Error saving data:', error);
+            }
         });
+    });
+
+    $('#categoryName').on('input', function () {
+        // Hide error and warning messages when the user starts typing
+        $('#categoryNameError').hide();
+        $('#categoryNameWarning').hide();
+    });
 });
 
 function containsBlankSpaces(value) {
     // Check if the value contains blank spaces
     return /\s/.test(value);
 }
-
-
 </script>
+
+
 
 <!-- LISTING AND UNLISTING -->
 
@@ -314,6 +340,8 @@ function containsBlankSpaces(value) {
         return /\s/.test(value);
     }
 </script>
+
+
 
 
 <%-include('../layouts/adminFooter.ejs')%>

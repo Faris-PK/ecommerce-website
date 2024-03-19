@@ -27,53 +27,58 @@
 </div><!-- End .page-header -->
 <br>
 
-<div class="container">    
+<div class="container">
     <div class="products-container" data-layout="fitRows">
         <% products.forEach(product => { %>
-            <div class="product-item furniture col-6 col-md-4 col-lg-3">
-                
+            <div class="product-item col-6 col-md-4 col-lg-3">
                 <div class="product product-4">
                     <figure class="product-media">
                         <a href="<%= product.quantity > 0 ? '/productdetails/' + product._id : '#' %>">
                             <img src="<%= product.image && product.image[3] %>" alt="Product image" class="product-image">
                         </a>
-
-                        <div class="product-action-vertical">
-                            <% if (product.quantity > 0) { %>
-                                <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
-                            <% } else { %>
-                                <span class="out-of-stock-label">Out of Stock</span>
-                            <% } %>
-                        </div><!-- End .product-action -->
-
-                        <div class="product-action">
-                            <a href="<%= product.quantity > 0 ? 'popup/quickView.html' : '#' %>" class="btn-product btn-quickview" title="Quick view"><span>quick view</span></a>
-                        </div><!-- End .product-action -->
+                        <div class="product-nav product-nav-thumbs">
+                            <!-- Add additional product images here if available -->
+                        </div><!-- End .product-nav -->
                     </figure><!-- End .product-media -->
 
                     <div class="product-body">
+                        <div class="product-cat">
+                            <a href="#"><!-- Add your product category dynamically --></a>
+                        </div><!-- End .product-cat -->
+
                         <h3 class="product-title">
                             <a href="<%= product.quantity > 0 ? 'product.html' : '#' %>"><%= product.name %></a>
                         </h3><!-- End .product-title -->
+
                         <div class="product-price">
                             <% if (product.quantity > 0) { %>
-                                <div class="out-price">₹<%= product.price %></div><!-- End .out-price -->
+                                $<%= product.price %>
                             <% } else { %>
                                 <span class="out-of-stock-label"><strong style="color: red;">Out of Stock</strong></span>
                             <% } %>
                         </div><!-- End .product-price -->
+
+                        <div class="ratings-container">
+                            <div class="ratings">
+                                <div class="ratings-val" style="width: 20%;"></div><!-- End .ratings-val -->
+                            </div><!-- End .ratings -->
+                            <span class="ratings-text">(<!-- Add your dynamic review count here --> Reviews)</span>
+                        </div><!-- End .rating-container -->
+
                         <div class="product-action">
                             <% if (product.quantity > 0) { %>
+                                <a href="#" class="btn-product btn-wishlist btn-expandable"><span>add to wishlist</span></a>
                                 <a href="#" class="btn-product btn-cart"><span>add to cart</span><i class="icon-long-arrow-right"></i></a>
+                                <a href="<%= product.quantity > 0 ? 'popup/quickView.html' : '#' %>" class="btn-product btn-quickview" title="Quick view"><span>quick view</span></a>
                             <% } %>
                         </div><!-- End .product-action -->
                     </div><!-- End .product-body -->
                 </div><!-- End .product -->
-                
             </div><!-- End .product-item -->
         <% }); %>
     </div><!-- End .products-container -->
 </div><!-- End .container -->
+
 
 
 

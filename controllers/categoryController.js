@@ -38,6 +38,9 @@ const toggleCategoryStatus = async (req,res) =>{
         const categoryId = req.params.categoryId;
         const category = await Categories.findById(categoryId);
 
+        //const caaaaaateee = await Categories.find()
+        //console.log('category:',caaaaaateee);
+
         if(!category){
             return res.status(404).json({success:false,message:'Category not found'});
         }

@@ -19,7 +19,7 @@
                             </div>
                             <div class="table-responsive">
                                 <table class="table">
-                                    <thead class="thead-light">
+                                    <thead class="thead-light  text-white">
                                         <tr>
                                             <!-- <th scope="col">ID</th> -->
                                             <th scope="col">Customer</th>
@@ -46,7 +46,7 @@
                                                         <td><img src="/uploads/<%= product.image %>" style="height: 100px; width: 100px;"  alt="image">
                                                             <%= product.name %></td>
                                                         <td><%= product.quantity %></td>
-                                                        <td>₹<%= product.total %></td>
+                                                        <td>₹<%= order.grandTotal %></td>
                                                         <td><%= order.date.toLocaleDateString() %></td>
                                                         <td><%= order.paymentMode %></td>
                                                         
@@ -66,6 +66,7 @@
                                                         </td>
                                                         <td>
                                                             <!-- <button class="btn btn-primary update-status-btn" data-orderid="<%= order.id %>" id="updateBtn<%= order._id %>">Update</button> -->
+                                                            <input type="hidden" value="<%= product.productId %>" id="productIdOg">
                                                             <button class="btn btn-primary update-status-btn" data-orderid="<%= order.id %>" data-productid="<%= product._id %>" id="updateBtn<%= order._id %>">Update</button>
                                                         </td>
                                                     </tr>
@@ -78,6 +79,15 @@
                                         <% } %>
                                     </tbody>
                                 </table>
+                                <nav aria-label="Page navigation example">
+                                    <ul class="pagination">
+                                        <% for (let i = 1; i <= totalPages; i++) { %>
+                                            <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                                <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                                            </li>
+                                        <% } %>
+                                    </ul>
+                                </nav>
                             </div>
                         </div>
                     </div>
@@ -136,6 +146,7 @@
             const orderId = $('#confirmationModal').data('orderid');
             const productId = $('#confirmationModal').data('productid');
             const newStatus = $('#confirmationModal').data('newstatus');
+            const productIdOg = document.getElementById('productIdOg').value
 
             // Make an AJAX request to update the order status
             $.ajax({
@@ -144,7 +155,8 @@
                 data: {
                     orderId: orderId,
                     productId: productId,
-                    newStatus: newStatus
+                    newStatus: newStatus,
+                    productIdOg: productIdOg
                 },
                 success: function (data) {
                     // Handle success response (if needed)

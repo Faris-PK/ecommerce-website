@@ -9,7 +9,11 @@ const Order = require('../models/orderModel');
 const Wallet = require('../models/walletModel');
 const Token = require('../models/tokenModel');
 const Category = require('../models/categoryModel');
-
+const Offer = require('../models/offerModel');
+const Wishlist = require("../models/whishlistModel");
+const Cart = require("../models/cartModel");
+const mongoose = require('mongoose');
+const { request } = require('express');
 
 const securePassword = async(password) => {
     try{
@@ -23,7 +27,7 @@ const securePassword = async(password) => {
 
 const loadRegister = async(req,res)=>{
     try {
-        res.render('registration')
+        res.render('user/registration')
     } catch (error) {
         console.log(error.message)
     }
@@ -36,7 +40,7 @@ const insertUser = async (req, res) => {
 
         if(exist){
             //req.flash('email', 'Email already exists');
-            res.render('registration',{message:"Email Already Exists!"});
+            res.render('user/registration',{message:"Email Already Exists!"});
         }
         else{
             const spassword = await securePassword(req.body.password);
@@ -105,6 +109,7 @@ const sendOTPVerificationEmail = async({email},res)=>{
         //res.render('success-2', { title: 'Registration Successfull!', message: 'Verify your Email.' });
         res.redirect(`/otp?email=${email}`)
     } catch (error) {
+        doc
         console.log(error.messgae)
     }
 }
@@ -113,7 +118,7 @@ const sendOTPVerificationEmail = async({email},res)=>{
 const loadOTP = async (req, res) => {
     try {
         const email = req.query.email;
-        res.render('OTPVerification', { email, errorMessage: undefined });
+        res.render('user/OTPVerification', { email, errorMessage: undefined });
     } catch (error) {
         console.log(error.message)
     }
@@ -165,7 +170,7 @@ const verifyOTP = async (req, res) => {
           
           // redirect to the login page with a success parameter
           //res.redirect('/login?success=true')
-          res.render('success-2', { title: 'Successfully Registered!', message: 'Go to Login!' });
+          res.render('user/success-2', { title: 'Successfully Registered!', message: 'Go to Login!' });
 
           ;
         } else {
@@ -174,7 +179,7 @@ const verifyOTP = async (req, res) => {
         }
       } else {
         // Render the OTPVerification page again with an error message
-        res.render('OTPVerification', { email, errorMessage: 'Invalid OTP! Try again' });
+        res.render('user/OTPVerification', { email, errorMessage: 'Invalid OTP! Try again' });
       }
     } catch (error) {
       console.log(error.message);
@@ -227,7 +232,7 @@ const verifyLogin = async (req, res) => {
                     res.redirect('/login');
             }
         } else {
-            res.render('login', { message: "Email and Password is incorrect...!!!" });
+            res.render('user/login', { message: "Email and Password is incorrect...!!!" });
         }
 
     } catch (error) {
@@ -238,28 +243,14 @@ const verifyLogin = async (req, res) => {
 
   
 
-// const userLogout = async (req,res)=>{
-//     try {
-//         req.session.userid = null
-//         res.redirect('/login')
-//     } catch (error) {
-//         console.log(error.message)
-//     }
-// }
-const userLogout = async (req, res) => {
+const userLogout = async (req,res)=>{
     try {
-        req.session.destroy((err) => {
-            if (err) {
-                console.log(err.message);
-            } else {
-                // res.clearCookie('sessionID'); // If you're using a session store like express-session
-                res.redirect('/login');
-            }
-        });
+        req.session.userid = null
+        res.redirect('/login')
     } catch (error) {
-        console.log(error.message);
+        console.log(error.message)
     }
-};
+ }
 
 
 const loadLogin = async (req, res) => {
@@ -267,7 +258,7 @@ const loadLogin = async (req, res) => {
         // Assuming you want to pass some session data to the login page
        // const sessionData = req.session.someData; // Replace 'someData' with the actual data you want to pass
        //, { sessionData }
-        res.render('login');
+        res.render('user/login');
     } catch (error) {
         console.log(error.message);
     }
@@ -280,7 +271,7 @@ const loadAboutUs = async (req, res) => {
     try {
         const email = req.session.email;
         const username = req.session.name;
-        res.render('aboutUs',{email,username});
+        res.render('user/aboutUs',{email,username});
         
     }
     catch(error) {
@@ -292,40 +283,23 @@ const loadAboutUs = async (req, res) => {
 // const loadHome = async (req, res) => {
 //     try {
 //         const email = req.session.email;
-//         const username = req.session.name; // Retrieve username from the session
-//         const products = await Products.find({ is_listed: true })
-//             // .populate({
-//             //     path: 'category',
-//             //     select: 'name is_listed'
-//             // });
-//         const categories = await Category.find({ is_listed: true });
-//         //console.log(categories);
-        
-        
-//         res.render('home', { email, username, userAuthenticated: req.session.userid, products,categories });
-//     } catch (error) {
-//         console.log(error.message);
-//     }
-// };
-
-
-// const loadHome = async (req, res) => {
-//     try {
-//         const email = req.session.email;
 //         const username = req.session.name;
 
 //         // Fetch products and categories with is_listed: true
-//         const products = await Products.find({ is_listed: true });
+//         const products = await Products.find({ is_listed: true }).populate('category', 'is_listed');
 //         const categories = await Category.find({ is_listed: true });
 
+//         // Filter out products that belong to unlisted categories
+//         const filteredProducts = products.filter(product => product.category.is_listed);
+
 //         // Check if there are any products or categories
-//         if (products.length === 0 || categories.length === 0) {
+//         if (filteredProducts.length === 0 || categories.length === 0) {
 //             // Handle the case when there are no products or categories
-//             return res.render('home', { email, username, userAuthenticated: req.session.userid, products: [], categories: [] });
+//             return res.render('user/home', { email, username, userAuthenticated: req.session.userid, products: [], categories: [] });
 //         }
 
-//         // Render the home page with products and categories
-//         res.render('home', { email, username, userAuthenticated: req.session.userid, products, categories });
+//         // Render the home page with filtered products and categories
+//         res.render('user/home', { email, username, userAuthenticated: req.session.userid, products: filteredProducts, categories });
 //     } catch (error) {
 //         console.log(error.message);
 //         res.render('errorPage'); // Handle error rendering
@@ -336,9 +310,27 @@ const loadHome = async (req, res) => {
     try {
         const email = req.session.email;
         const username = req.session.name;
+        const itemsPerPage = 8;
+        const page = req.query.page || 1;
 
-        // Fetch products and categories with is_listed: true
-        const products = await Products.find({ is_listed: true }).populate('category', 'is_listed');
+        // Fetch products with is_listed: true and paginate the results
+        let products = await Products.find({ is_listed: true })
+            .populate('category', 'is_listed')
+            .populate('offer') // Populate the 'offer' field
+            .skip((page - 1) * itemsPerPage)
+            .limit(itemsPerPage);
+            //console.log('products from populate:',products);
+
+
+            // Determine the best offer for each product
+        products = await Promise.all(products.map(async (product) => {
+            const { bestOffer, bestOfferType } = await product.determineBestOffer();
+            return { ...product.toObject(), bestOffer, bestOfferType };
+        }));
+
+        //console.log('product fro home:',products);
+
+        // Fetch all categories with is_listed: true
         const categories = await Category.find({ is_listed: true });
 
         // Filter out products that belong to unlisted categories
@@ -347,24 +339,35 @@ const loadHome = async (req, res) => {
         // Check if there are any products or categories
         if (filteredProducts.length === 0 || categories.length === 0) {
             // Handle the case when there are no products or categories
-            return res.render('home', { email, username, userAuthenticated: req.session.userid, products: [], categories: [] });
+            return res.render('user/home', { email, username, userAuthenticated: req.session.userid, products: [], categories: [] });
         }
 
-        // Render the home page with filtered products and categories
-        res.render('home', { email, username, userAuthenticated: req.session.userid, products: filteredProducts, categories });
+        // Count total products for pagination
+        const totalProducts = await Products.countDocuments({ is_listed: true });
+        const totalPages = Math.ceil(totalProducts / itemsPerPage);
+
+        // Render the home page with filtered products, categories, and pagination data
+        res.render('user/home', {
+            email,
+            username,
+            userAuthenticated: req.session.userid,
+            products: filteredProducts,
+            categories,
+            currentPage: page,
+            totalPages
+        });
     } catch (error) {
         console.log(error.message);
-        res.render('errorPage'); // Handle error rendering
+        //res.render('errorPage'); // Handle error rendering
     }
 };
-
 
 
 const loadContactUs = async (req, res) => {
     try {
         const email = req.session.email;
         const username = req.session.name;
-        res.render('contact',{email,username})
+        res.render('user/contact',{email,username})
     }
     catch(error) {
         console.log(error.message);
@@ -372,18 +375,59 @@ const loadContactUs = async (req, res) => {
 
 }
 
-const loadProductDetails =async(req,res)=>{
+const loadProductDetails = async (req, res) => {
     try {
         const email = req.session.email;
         const username = req.session.name;
         const userId = req.session.userid;
         const productId = req.params.productId;
-        const product = await Products.findById(productId);
-        res.render('productDetails',{product,userId,email,username});
-    } catch (error) { 
-        console.log(error.message)
+        
+        // Fetch the product details along with its category and offers
+        const product = await Products.findById(productId).populate('offer').populate('category');
+
+        if (!product) {
+            // If product is not found, handle the error
+            return res.status(404).render('errorPage', { errorMessage: 'Product not found' });
+        }
+
+        // console.log("Above the determine best offer in controller");
+        // Determine the best offer for the product
+        const { bestOffer, bestOfferType } = await product.determineBestOffer();
+        //console.log('bestoffer',bestOffer);
+       // console.log('bestoffertype',bestOfferType);
+
+        // console.log("bestOffer: ", bestOffer);
+        // console.log(("bestOfferType: ", bestOfferType));
+
+        // console.log("Passed the best offer in controller");
+
+        // Check if the product is already in the cart
+        const cart = await Cart.findOne({ userid: userId, 'product.productid': productId });
+        let alreadyInCart = false;
+
+        // If the product is in the cart, set alreadyInCart to true
+        if (cart) {
+            alreadyInCart = true;
+        }
+
+        const wishlist = await Wishlist.findOne({ userid: userId, 'product.productid': productId });
+        let alreadyInWishlist = false;
+
+        // If the product is in the cart, set alreadyInCart to true
+        if (wishlist) {
+            alreadyInWishlist = true;
+        }
+
+        // Pass the product, userId, alreadyInCart, alreadyInWishlist, and bestOffer to the view
+
+        res.render('user/productDetails', { product, userId, alreadyInCart, alreadyInWishlist, bestOffer, bestOfferType  });
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).render('errorPage', { errorMessage: 'Internal Server Error' });
     }
-}
+};
+
+
 
 
 
@@ -424,7 +468,7 @@ const updateUser = async (req, res) => {
 const loadForgotPassword = async (req,res)=>{
     try {
 
-        res.render('forgot-password')
+        res.render('user/forgot-password')
     } catch (error) {
         console.log(error.message);
     }
@@ -499,7 +543,7 @@ const loadResetPassword = async (req,res)=>{
         }
 
         // Pass the token to the reset password page
-        res.render('reset-password',{token});
+        res.render('user/reset-password',{token});
     } catch (error) {
         console.log(error.message);
     }
@@ -551,7 +595,7 @@ const loadPasswordUpdate = async (req, res) => {
     try {
         const email = req.session.email;
         const username = req.session.name;
-        res.render('editPassword',{email,username});
+        res.render('user/editPassword',{email,username});
     } catch (error) {
         console.log(error.message);
         res.status(500).send('Internal Server Error');
@@ -565,14 +609,14 @@ const updatePassword = async (req, res) => {
 
         if (!userId) {
             // Handle case where user is not found
-            return res.render('editPassword', { message: "User not found" });
+            return res.render('user/editPassword', { message: "User not found" });
         }
 
         const user = await User.findOne({ _id: userId });
 
         if (!user) {
             // Handle case where user is not found
-            return res.render('editPassword', { message: "User not found" });
+            return res.render('user/editPassword', { message: "User not found" });
         }
 
         const currentPassword = req.body.currentPassword;
@@ -584,13 +628,13 @@ const updatePassword = async (req, res) => {
 
         if (!isPasswordValid) {
             // Handle case where current password is not valid
-            return res.render('editPassword', { message: "Current password is incorrect" });
+            return res.render('user/editPassword', { message: "Current password is incorrect" });
         }
 
         // Check if the new password and confirm new password match
         if (newPassword !== confirmNewPassword) {
             // Handle case where new passwords do not match
-            return res.render('editPassword', { message: "New passwords do not match" });
+            return res.render('user/editPassword', { message: "New passwords do not match" });
         }
 
         // Update the user's password
@@ -609,55 +653,68 @@ const updatePassword = async (req, res) => {
     }
 };
 
-// Update your controller (userController.js)
-const loadCategoryProducts = async (req, res) => {
+
+
+const ITEMS_PER_PAGE_SHOP = 9
+
+
+const loadAllProducts = async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
     try {
-        const email = req.session.email;
-        const username = req.session.name;
-        const categoryId = req.params.categoryId;
+        const categoriesQueryParam = req.query.categories;
+        const minPrice = parseInt(req.query.minPrice) || 0;
+        const maxPrice = parseInt(req.query.maxPrice) || 100000; // Assuming 1000 is the maximum price
+        const searchTerm = req.query.search;
 
-        // Fetch the selected category and its products with is_listed: true
-        const category = await Category.findOne({ _id: categoryId, is_listed: true });
-        const products = await Products.find({ category: categoryId, is_listed: true }).populate('category');
+        let filter = { is_listed: true };
 
-        // Check if the category exists and has products
-        if (!category || products.length === 0) {
-            // Handle the case when the category or products are not found
-            return res.render('errorPage');
+        if (categoriesQueryParam) {
+            const categoryIds = categoriesQueryParam.split(',');
+            filter.category = { $in: categoryIds };
         }
 
-       // console.log('cattt',category);
+        // Add price range filter
+        filter.price = { $gte: minPrice, $lte: maxPrice };
 
-        res.render('allProducts', { email, username, userAuthenticated: req.session.userid, category, products });
-    } catch (error) {
-        console.log(error.message);
-        //res.render('errorPage'); // Handle error rendering
-    }
-};
-
-const loadShop = async (req, res) => {
-    try {
-        // Fetch products and categories with is_listed: true
-        const products = await Products.find({ is_listed: true }).populate('category', 'is_listed');
-        const categories = await Category.find({ is_listed: true });
-
-        // Filter out products that belong to unlisted categories
-        const filteredProducts = products.filter(product => product.category.is_listed);
-
-        // Check if there are any products or categories
-        if (filteredProducts.length === 0 || categories.length === 0) {
-            // Handle the case when there are no products or categories
-            return res.render('shop', { products: [], categories: [] });
+        if (searchTerm) {
+            // Assuming 'name' is the field you want to search in
+            // Adjust this according to your schema
+            filter.$or = [
+                { name: { $regex: searchTerm, $options: 'i' } },
+                // Add more fields here if you want to search in other fields
+            ];
         }
 
-        // Render the shop page with filtered products and categories
-        res.render('shop', { products: filteredProducts, categories });
-    } catch (error) {
-        console.log(error.message);
-        res.render('errorPage'); // Handle error rendering
-    }
-};
+        const totalItems = await Products.countDocuments(filter);
+        const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE_SHOP);
+        const categories = await Category.find({is_listed: true});
 
+        let products = await Products.find(filter)
+            .populate('category')
+            .populate('offer') // Populate the 'offer' field
+            .skip((page - 1) * ITEMS_PER_PAGE_SHOP)
+            .limit(ITEMS_PER_PAGE_SHOP);
+
+
+            // Determine the best offer for each product
+            products = await Promise.all(products.map(async (product) => {
+                const { bestOffer, bestOfferType } = await product.determineBestOffer();
+                return { ...product.toObject(), bestOffer, bestOfferType };
+            })); 
+            
+            
+
+        if (req.xhr) {
+            res.render("partials/productList", { products, currentPage: page, totalPages });
+        } else {
+            res.render("user/allproducts", { products, currentPage: page, totalPages, categories });
+        }
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send('Internal Server Error');
+    }
+}
 
 
 module.exports = {
@@ -682,8 +739,8 @@ module.exports = {
     //loadForgotPasswordConfirmation,
     loadPasswordUpdate,
     updatePassword,
-    loadCategoryProducts,
-    loadShop
-
+    // loadCategoryProducts,
+    // loadShop
+    loadAllProducts
    
 }

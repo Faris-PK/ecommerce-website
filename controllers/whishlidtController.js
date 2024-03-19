@@ -2,6 +2,7 @@ const Cart = require('../models/cartModel');
 const Product = require('../models/productModel');
 const User = require('../models/userModel');
 const Wishlist = require('../models/whishlistModel');
+const Offer = require('../models/offerModel')
 
 const loadWishlist = async (req,res) => {
     try {
@@ -14,7 +15,7 @@ const loadWishlist = async (req,res) => {
             select:'name price quantity image',
         })
 
-        res.render('wishlist',{wishlistProduct,email,username});
+        res.render('user/wishlist',{wishlistProduct,email,username});
     } catch (error) {
         console.log(error.message);
     }   

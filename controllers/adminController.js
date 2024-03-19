@@ -34,14 +34,7 @@ const adminVerifyLogin = async(req, res) => {
 
 
 
-// const loadDashboard = async (req,res) => {
-//     try{
-//         res.render('adminDashboard');
-//     } catch (error) {
-//         console.log(error);
-//     }
-    
-// }
+
 
 const adminLogout = async (req,res)=>{
     try {
@@ -53,7 +46,7 @@ const adminLogout = async (req,res)=>{
                 res.redirect('/admin/login');
             }
         });
-    } catch (error) {
+    } catch (error) {z
         console.log(error.message);
     }
 }
