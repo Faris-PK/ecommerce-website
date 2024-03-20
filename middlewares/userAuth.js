@@ -20,7 +20,7 @@ const isLogout = async(req, res, next) => {
         if(!req.session.userid){
             next();
         }else{
-            res.redirect('/');
+            res.redirect('/'); 
         }
     } catch(error) {
         console.log(error.message);
