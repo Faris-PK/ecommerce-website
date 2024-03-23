@@ -1,7 +1,4 @@
 const Users = require("../models/userModel");
-const bcrypt = require("bcrypt");
-const adminAuth = require("../middlewares/adminAuth");
-
 const Order = require("../models/orderModel");
 
 const loadAdminLogin = async(req, res) => {
@@ -25,7 +22,7 @@ const adminVerifyLogin = async(req, res) => {
     
         }
         else{
-            res.render('adminlogin',{message:"Email and Password is incorrect...!!!"});
+          return  res.render('adminlogin',{message:"Email and Password is incorrect...!!!"});
         }
     } catch (error) {
         console.log(error);
