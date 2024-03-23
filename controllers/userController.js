@@ -705,9 +705,9 @@ const loadAllProducts = async (req, res) => {
             
 
         if (req.xhr) {
-            res.render("partials/productList", { products, currentPage: page, totalPages });
+            res.render("partials/productlist", { products, currentPage: page, totalPages });
         } else {
-            res.render("user/allproducts", { products, currentPage: page, totalPages, categories });
+            res.render("user/allProducts", { products, currentPage: page, totalPages, categories });
         }
 
     } catch (error) {
