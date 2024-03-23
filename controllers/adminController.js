@@ -25,7 +25,7 @@ const adminVerifyLogin = async(req, res) => {
     
         }
         else{
-            res.render('adminLogin',{message:"Email and Password is incorrect...!!!"});
+            res.render('adminlogin',{message:"Email and Password is incorrect...!!!"});
         }
     } catch (error) {
         console.log(error);

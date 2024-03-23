@@ -118,7 +118,7 @@ const sendOTPVerificationEmail = async({email},res)=>{
 const loadOTP = async (req, res) => {
     try {
         const email = req.query.email;
-        res.render('user/OTPVerification', { email, errorMessage: undefined });
+        res.render('user/otpVerification', { email, errorMessage: undefined });
     } catch (error) {
         console.log(error.message)
     }
