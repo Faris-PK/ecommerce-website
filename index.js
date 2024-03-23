@@ -16,7 +16,7 @@ app.use(express.static(path.join(__dirname,'public/uploads')))
 
 app.use(flash());
 app.use(session({
-  secret: process.env.sessionSecret, // Change this to a long, random string
+  secret: process.env.SESSION_SECRET, // Change this to a long, random string
   resave: false,
   saveUninitialized: true,
   cookie: { secure: false } // Set to true if using HTTPS

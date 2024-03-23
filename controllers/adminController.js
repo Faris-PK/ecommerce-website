@@ -15,7 +15,7 @@ const adminVerifyLogin = async(req, res) => {
         const adminEmail = req.body.adminEmail;
         const adminPassword = req.body.adminPassword;
         
-        if(adminEmail == process.env.adminEmail && adminPassword == process.env.adminPassword){
+        if(adminEmail == process.env.ADMIN_EMAIL && adminPassword == process.env.ADMIN_PASSWORD){
             // Session variable for the authenticated admin
             req.session.admin = {email: adminEmail};
             res.redirect('/admin/dashboard');
