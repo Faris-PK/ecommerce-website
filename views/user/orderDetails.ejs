@@ -1,7 +1,7 @@
 <%-include('../layouts/header.ejs')%>
 <%-include('../layouts/navbar.ejs')%>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <style>
     /* body{
     background:#eee;
@@ -118,21 +118,26 @@ h3, h6 {
                 <div class="card-body p-5">
                     <div class="mb-0 d-flex justify-content-between">
                         <div>
-                            <% var pendingOrder = order.products.some(function(product) { return product.orderStatus === "Pending"; }); %>
-                            
-                            <% if (pendingOrder) { %>
-                                <div class="warning-message" style="background-color: #ffe6e6; color: #990000; padding: 10px; border-radius: 5px;">
-                                    <% order.products.forEach(function(product) { %>
-                                        <% if (product.orderStatus === "Pending") { %>
-                                            <p>The payment for this order has been failed, please <button class="btn-link" type="button" onclick="continuePayment('<%=order.grandTotal %>', '<%= order._id%>', '<%= order.hashedOrderId%>')" id="continuePayment">click here</button> to pay now.</p>
-                                        <% } %>
-                                    <% }); %>
-                                </div>
-                            <% } else { %>
-                                <span class="me-3">Estimated Delivery By: <strong><span style="color: green;"><%= order.edd.toDateString() %>, 11PM</span></strong></span>
-                            <% } %>
+                    <%var pendingOrder = order.products.some(function(product) { return product.orderStatus === "Pending"; });
+                    var cancelledOrder = order.products.some(function(product) { return product.orderStatus === "Cancelled"; });
+                    var returnedOrder = order.products.some(function(product) { return product.orderStatus === "Returned"; }); %>
+
+                    <% if (pendingOrder) { %>
+                        <div class="warning-message" style="background-color: #ffe6e6; color: #990000; padding: 10px; border-radius: 5px;">
+                            <% order.products.forEach(function(product) { %>
+                                <% if (product.orderStatus === "Pending") { %>
+                                    <p>The payment for this order has failed. Please <button class="btn-link" type="button" onclick="continuePayment('<%=order.grandTotal %>', '<%= order._id%>', '<%= order.hashedOrderId%>')" id="continuePayment">click here</button> to pay now.</p>
+                                <% } %>
+                            <% }); %>
                         </div>
-                    
+                    <% } else if (cancelledOrder) { %>
+                        <p style="color:#990000; font-weight: bold;">Your Order is Cancelled!<i class="fas fa-check-circle" style="color:red;"></i></p>
+                        <% } else if (returnedOrder) { %>
+                            <p style="color:#237804; font-weight: bold;">Your Order is Returned!<i class="fas fa-check-circle" style="color:green;"></i></p>
+                        <% } else { %>
+                        <span class="me-3">Estimated Delivery By: <strong><span style="color: green;"><%= order.edd.toDateString() %>, 11PM</span></strong></span>
+                    <% } %>
+                        </div>
                         <div class="d-flex">
                             <% if(isProductDelivered){ %>
                             <a href="/invoice/<%= order.orderId %>" class="btn btn-link p-0 me-3 d-none d-lg-block btn-icon-text">
@@ -158,7 +163,7 @@ h3, h6 {
                                 <td>
                                     <div class="d-flex mb-0">
                                         <div class="flex-shrink-0">
-                                            <img src="/uploads/<%=product.image %>" alt="" width="100" class="img-fluid">
+                                            <img src="/uploads/<%=product.image%>" alt="" width="100" class="img-fluid">
                                         </div>
                                         <div class="flex-lg-grow-1 ms-3">
                                             <h6 class="small mb-1 ml-3"><a href="#" class="text-reset"><strong><%= product.name %></strong></a></h6>

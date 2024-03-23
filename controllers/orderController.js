@@ -15,7 +15,7 @@ const loadOrderList = async (req, res) => {
         const products = await Product.find();
 
        // console.log('orderlist:',orders);
-
+      // console.log('products:',products);
         res.render('orderList', { orders: orders.docs, products, currentPage: page, totalPages: orders.totalPages });
     } catch (error) {
         console.log(error.message);

@@ -238,9 +238,14 @@ const removeCoupon = async (req, res) => {
             throw new Error('Cart not found');
         }
 
-        const { subTotal, offerDiscount, couponDiscount } = updatedCart;
-        const newGrandTotal = subTotal - offerDiscount - couponDiscount;
-
+       // const { subTotal, offerDiscount, couponDiscount } = updatedCart;
+        //const newGrandTotal = subTotal - offerDiscount - couponDiscount;
+         // Ensure all relevant values are valid numbers
+         const subTotal = updatedCart.subTotal || 0;
+         const offerDiscount = updatedCart.offerDiscount || 0;
+         const couponDiscount = 0; // Since the coupon is removed
+         const newGrandTotal = subTotal - offerDiscount - couponDiscount;
+ 
         
         updatedCart.grandTotal = newGrandTotal;
         await updatedCart.save();

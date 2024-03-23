@@ -42,7 +42,16 @@
                                         <td>₹<%= product.price %></td>
                                         <td>₹<%= product.quantity * product.price %></td>
                                     </tr>
+                                    
                                 <% }); %>
+                                <tr>
+                                    <td colspan="3">GST (18%)</td>
+                                    <% if (order.gstApplicable) { %>
+                                        <td>₹<%= order.gstAmount %></td>
+                                    <% } else { %>
+                                        <td>₹0</td>
+                                    <% } %>
+                                </tr>
                             </tbody>
                         </table>
                     </div>

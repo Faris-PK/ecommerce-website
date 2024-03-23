@@ -34,15 +34,27 @@ const loadCart = async (req, res) => {
             model: 'Products', 
             select: 'name price image quantity',
         });
-        // console.log("cart: ", cart);
+        //console.log("cart: ", cart);
+
 
         
         if (!cart) {
             return res.render('user/cart', { cartProduct: [], subtotal: 0, offerDiscount: 0, cartId: null });
         }
+        // Initialize total offerDiscount for cart
+        let totalOfferDiscount = 0;
+
+         // Calculate total offerDiscount for cart
+         cart.product.forEach(item => {
+            totalOfferDiscount += item.offerDiscount;
+        });
+       // console.log('totalOfferDiscount:',totalOfferDiscount);
+
 
         const subtotal = cart.subTotal;
-        const offerDiscount = cart.offerDiscount;
+        const offerDiscount = totalOfferDiscount;
+        
+        //console.log('offerDiscount:',offerDiscount);
 
         res.render('user/cart', { cartProduct: cart.product, subtotal, offerDiscount, cartId: cart._id});
 
@@ -77,12 +89,17 @@ const addToCart = async (req, res) => {
 
             cart.subTotal = cart.product.reduce((acc, cur) => acc + cur.totalPrice, 0);
             cart.grandTotal = cart.subTotal - cart.couponDiscount;
+            
 
             await cart.save();
 
+            console.log('cart:',cart);
+            
             res.status(200).json({ message: 'Product added to cart successfully', isProductInCart: false });
             return;
         }
+
+        
 
         const existingProduct = userCart.product.find(product => String(product.productid) === productId);
 
@@ -132,26 +149,6 @@ const cartQuantity = async (req, res) => {
         }
 
         const { bestOffer, bestOfferType } = await product.determineBestOffer();
-        // console.log("bestOffer: ", bestOffer);
-        // console.log(("bestOfferType: ", bestOfferType));
-
-        // let bestOffer = null;
-        // let bestOfferType = null;
-
-        // // Check if the product has an offer
-        // if (product.offer && product.offer.is_active) {
-        //     bestOffer = product.offer;
-        //     bestOfferType = 'product';
-        // }
-
-        // // Check if the category has an offer
-        // if (product.category && product.category.offer && product.category.offer.is_active) {
-        //     // If the category has an offer and it's better than the product's offer, use it
-        //     if (!bestOffer || product.category.offer.discountPercentage > bestOffer.discountPercentage) {
-        //         bestOffer = product.category.offer;
-        //         bestOfferType = 'category';
-        //     }
-        // }
 
         // Calculate the offer discount based on the best offer for the new quantity
         const offerDiscount = bestOffer ? productPrice * (bestOffer.discountPercentage / 100) * quantity : 0;
@@ -223,7 +220,7 @@ const loadCheckout = async (req, res) => {
         const cart = await Cart.findOne({ userid: userId }).populate({
             path: "product.productid",
             model: Product, 
-            select: 'name price',
+            select: 'name price offerDiscount',
         });
         
         if (!cart || !cart.product || cart.product.length === 0 ) {
@@ -231,13 +228,22 @@ const loadCheckout = async (req, res) => {
             res.redirect('/cart');
         }
         else{
+
+            // Calculate total offer discount for all products
+            let totalOfferDiscount = 0;
+            cart.product.forEach(item => {
+                totalOfferDiscount += item.offerDiscount;
+            });
+
+
+            
             const subTotal = cart.subTotal;
             const couponDiscount = cart.couponDiscount
             const grandTotal = cart.grandTotal;
             const walletBalance = wallet.balance;
             res.render('user/checkout', { 
                 checkoutProduct: cart.product, userAddresses, couponDiscount, subTotal, grandTotal, 
-                walletBalance: walletBalance 
+                walletBalance: walletBalance,offerDiscount: totalOfferDiscount 
             },);
         }
     } catch (error) {
@@ -369,7 +375,7 @@ const placeOrder = async (req, res) => {
 
         const products = checkoutProduct.reduce((acc, checkoutItem) => {
             return acc.concat(checkoutItem.product.map((product, index) => ({
-                productId: product.productid._id,
+                productid: product.productid._id,
                 name: product.productid.name,
                 price: product.productid.price,
                 offerDiscount: product.offerDiscount,
@@ -379,6 +385,7 @@ const placeOrder = async (req, res) => {
                 image: product.productid.image[0],
             })));
         }, []);
+       // console.log('Offer Discount:',products.offerDiscount);
 
         const user = await User.findById(req.session.userid).lean();
 
@@ -587,19 +594,29 @@ const loadOrderConfirmation = async (req, res) => {
 
         
         const hashedOrderId = req.params.Id;
-        // console.log("req.params.id: ", req.params.Id);
-        // console.log("hashedOrderId: ", hashedOrderId);
+        
         // Fetching order details from the database using the hashed order ID
         const order = await Order.findOne({ hashedOrderId:hashedOrderId });
         // console.log("order: ", order);
-        //console.log('orderconfirmationData:',order);
+
+        if (!order) {
+            return res.status(404).render('error', { message: 'Order not found' });
+        }
+
+         // Calculate total offer discount for all products in the order
+         let totalOfferDiscount = 0;
+         order.products.forEach(product => {
+             totalOfferDiscount += product.offerDiscount;
+         });
+         console.log('totalOfferDiscount:',totalOfferDiscount);
+        
 
         const user = await User.findById(order.userId);
         // console.log("user: ", user);
         if (!order) {
             return res.status(404).render('error', { message: 'Order not found' });
         }
-        res.render('user/orderconfirmation', { order,  user,email,username});
+        res.render('user/orderconfirmation', { order,  user,email,username, offerDiscount: totalOfferDiscount});
     } catch (error) {
         console.log(error);
         res.status(500).render('error', { message: 'Internal server error' });

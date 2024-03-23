@@ -212,10 +212,12 @@
                 const totalColElement = input.closest('tr').querySelector('.total-col');
                 const subtotalElement = document.querySelector('.summary-subtotal td:last-child');
                 const grandTotalElement = document.querySelector('.summary-total td:last-child');
+                const offerDiscountElement = document.querySelector('.summary-offerdiscount td:last-child');
 
                 totalColElement.textContent = `₹${response.updatedTotalPrice.toFixed(2)}`;
                 subtotalElement.textContent = `₹${response.totalPriceTotal.toFixed(2)}`;
                 grandTotalElement.textContent = `₹${response.totalPriceTotal.toFixed(2)}`;
+                offerDiscountElement.textContent = `₹${response.offerDiscount.toFixed(2)}`;
 
             } catch (error) {
                 console.error(error);

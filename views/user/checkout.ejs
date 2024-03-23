@@ -121,7 +121,10 @@
                                     </tr>
                                     <tr>
                                         <td>Discount:</td>
-                                        <td>-₹<%= couponDiscount %></td> <!-- Display discount -->
+                                        <!-- <td>-₹<%= couponDiscount %></td> Display discount -->
+                                        <td>₹<%= typeof offerDiscount !== 'undefined' ? offerDiscount : (typeof couponDiscount !== 'undefined' ? couponDiscount : '0.00') %></td>
+                                        
+ 
                                     </tr>
                                     <tr>
                                         <td>Grand Total:</td>

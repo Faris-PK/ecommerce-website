@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-mongoose.connect("mongodb://127.0.0.1:27017/Decora");
+mongoose.connect("mongodb+srv://faripk369:tvskl55370@cluster0.yamkkq5.mongodb.net/");
 
 const express = require('express');
 const app = express();

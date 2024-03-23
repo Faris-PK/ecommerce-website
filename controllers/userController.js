@@ -222,7 +222,7 @@ const verifyLogin = async (req, res) => {
                     req.session.userid = userData._id;
                     req.session.email = email; // Store user email in the session
                     req.session.name = userData.name; // Store username in the session
-                    req.flash('light', 'Welcome To Decora!');
+                    req.flash('light', 'Welcome To Decora ');
                     res.redirect('/');
 
                 }

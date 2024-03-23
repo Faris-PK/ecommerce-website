@@ -34,7 +34,7 @@
         
     }
     nav.main-nav {
-    margin-left: 180px; /* Adjust the margin value as needed */
+    margin-left: 100px; /* Adjust the margin value as needed */
 }
     
 </style>
@@ -48,21 +48,21 @@
                     <i class="icon-bars"></i>
                 </button>
                 <a href="index.html" class="logo">
-                    <img src="/assets/images/backgrounds/brand-logo.jpg" alt="FurnIt Logo" width="155" height="45">
+                    <img src="/assets/images/backgrounds/brand-logo.jpg" alt="FurnIt Logo" width="200" height="75">
                 </a>
                 <nav class="main-nav ">
-                    <ul class="menu sf-arrows ml-3">
+                    <ul class="menu sf-arrows ml-3 ">
                         <li class="megamenu-container active">
-                            <a href="/home" class="sf-with-ul">Home</a>
+                            <a href="/home" class="sf-with font-weight-bold">Home</a>
                         </li>
                         <li>
-                            <a href="/allproducts" class="sf-with-ul">Shop</a>
+                            <a href="/allproducts" class="sf-with- font-weight-bold">Shop</a>
                         </li>
                         <li>
-                            <a href="/aboutus" class="sf-with-ul">About Us</a>
+                            <a href="/aboutus" class="sf-with- font-weight-bold">About Us</a>
                         </li>
                         <li>
-                            <a href="/contactus" class="sf-with-ul">Contact Us</a>
+                            <a href="/contactus" class="sf-with- font-weight-bold">Contact Us</a>
                         </li>
                     </ul><!-- End .menu -->
                 </nav><!-- End .main-nav -->
@@ -142,6 +142,8 @@
         <% if (locals.userAuthenticated) { %>
             <!-- Display username if the user is logged in -->
             <div class="user-info text-center" >
+                <h1 style="color: #cc9966;">DECORA</h1>
+                <h6 style="color: #fff;">FURNITURE</h6>
                 <p><strong><%= username %></strong></p>
             </div>
         <% } %>
@@ -213,5 +215,9 @@
         }
     });
 });
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-square" viewBox="0 0 16 16">
+  <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+  <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm12 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1v-1c0-1-1-4-6-4s-6 3-6 4v1a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+</svg>
 
 </script>

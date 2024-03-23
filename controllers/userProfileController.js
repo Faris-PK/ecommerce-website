@@ -14,6 +14,7 @@ const userProfile = async (req, res) => {
         // const email = req.session.email;
         // const username = req.session.name;
         const wallet = await Wallet.findOne({ user: userId });
+        console.log('wallet:',wallet);
 
         const order = await Order.find({userId: userId}).populate({
             path: 'products.productid',
@@ -135,6 +136,7 @@ const loadOrderDetails = async (req, res) => {
             model: Products,
             select: 'name price quantity image orderStatus' // Select the fields you need from the Product model
         });
+       console.log("order:",order);
         
 
         //console.log(order);
@@ -178,10 +180,7 @@ const orderCancel = async (req, res) => {
             return res.status(404).json({ message: 'Order or product not found' });
         }
 
-        order.products.forEach((product) => {
-                
-           
-                
+        order.products.forEach((product) => {   
                  //console.log('product.productId:',product.productid);
                 // console.log('product.quantity:',product.quantity);
                 Products.updateOne(
@@ -221,18 +220,17 @@ const orderCancel = async (req, res) => {
 
             
             wallet.balance += cancelledAmount;
+            const reason = 'Order cancellation refund'
         
             
             wallet.walletHistory.push({
                 amount: cancelledAmount,
                 type: 'Credit',
-                reason: 'Order cancellation refund',
+                reason: reason,
                 orderId: orderId, 
                 orderId2: order.orderId,
                 date: new Date()
             });
-
-            
 
             
             await wallet.save();
@@ -247,11 +245,13 @@ const orderCancel = async (req, res) => {
 
 const orderReturnRequest = async (req, res) => {
 
-    console.log("Inside return request controller");
+   // console.log("Inside return request controller");
 
     const orderId = req.params.orderId;
+   //console.log('orderId:',orderId);
 
     const productId = req.params.productId;
+  //  console.log('productId:',productId);
 
     const { index, reason } = req.body;
 
@@ -270,6 +270,7 @@ const orderReturnRequest = async (req, res) => {
             },
             { new: true }
         );
+       // console.log('order:',order);
 
         if (!order) {
             return res.status(404).json({ message: 'Order or Product not found' });

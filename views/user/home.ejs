@@ -54,7 +54,7 @@
                             <h3 class="intro-subtitle text-primary">SEASONAL PICKS</h3><!-- End .h3 intro-subtitle -->
                             <h1 class="intro-title">Get All <br>The Good Stuff</h1><!-- End .intro-title -->
 
-                            <a href="category.html" class="btn btn-outline-primary-2">
+                            <a href="/allproducts" class="btn btn-outline-primary-2">
                                 <span>DISCOVER MORE</span>
                                 <i class="icon-long-arrow-right"></i>
                             </a>
@@ -63,7 +63,8 @@
                 </div><!-- End .intro-slider owl-carousel owl-simple -->
 
                 <span class="slider-loader"></span><!-- End .slider-loader -->
-            </div><!-- End .intro-slider-container -->
+            </div>
+            <!-- End .intro-slider-container -->
 
            
             <div class="container">
@@ -110,7 +111,7 @@
                     </div><!-- End .product-item -->
                     <% }); %>
                 </div><!-- End .products-container -->
-            </div><!-- End .container -->
+            </div><!-- End .container --> <br>
             
             
             
@@ -158,7 +159,13 @@
 .products-container {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between; /* or other appropriate value */
+    justify-content: space-between;
+    border-radius: 10px; /* Adjust the value as needed */
+    overflow: hidden; /* Ensure content does not overflow rounded corners */
+    background-color: #fff; /* Add a background color if needed */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add a subtle shadow for depth */
+    padding: 20px; 
+    /* or other appropriate value */
 }
 .product-item {
     margin-bottom: 20px; /* Adjust the value as needed */
