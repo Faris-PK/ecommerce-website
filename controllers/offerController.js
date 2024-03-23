@@ -5,7 +5,7 @@ const Category = require("../models/categoryModel");
 const loadOffer = async (req, res) => {
     try {
         const offers = await Offer.find();
-        res.render ('offerlist', { offers });
+        res.render ('offerList', { offers });
     } catch (error) {
         console.error('Error fetching offers:', error);
         res.status(500).send('An error occurred while fetching offers.');
@@ -14,7 +14,7 @@ const loadOffer = async (req, res) => {
 
 const loadAddOffer = async (req, res) => {
     try {
-        res.render ('addoffer');
+        res.render ('addOffer');
     } catch (error) {
         console.log(error);
     }
@@ -51,7 +51,7 @@ const loadEditOffer = async (req, res) => {
       return res.status(404).send('Offer not found');
   }
 
-    res.render('editoffer', {offer: offer})
+    res.render('editOffer', {offer: offer})
   } catch (error) {
     console.log(error);
   }
@@ -87,7 +87,7 @@ const loadProductApplyOffer = async (req, res) => {
         const productId = req.query.id
         const product = await Product.findOne({_id:productId})
 
-        res.render("selectproductofferlist", { offers, productId, product });
+        res.render("selectProductOfferList", { offers, productId, product });
     } catch (error) {
         console.log(error);
     }
@@ -134,7 +134,7 @@ const loadCategoryApplyOffer = async (req, res) => {
         const categoryId = req.query.id
         const category = await Category.findOne({_id:categoryId})
 
-        res.render("selectcategoryofferlist", { offers, categoryId, category });
+        res.render("selectCategoryOfferList", { offers, categoryId, category });
     } catch (error) {
         console.log(error);
     }
