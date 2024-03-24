@@ -55,6 +55,7 @@ const loadCart = async (req, res) => {
         const offerDiscount = totalOfferDiscount;
         
         //console.log('offerDiscount:',offerDiscount);
+        //res.redirect('/cart');
 
         res.render('user/cart', { cartProduct: cart.product, subtotal, offerDiscount, cartId: cart._id});
 
@@ -93,7 +94,7 @@ const addToCart = async (req, res) => {
 
             await cart.save();
 
-            console.log('cart:',cart);
+            //console.log('cart:',cart);
             
             res.status(200).json({ message: 'Product added to cart successfully', isProductInCart: false });
             return;

@@ -129,12 +129,12 @@
                                         <% if (product.quantity <= 0) { %>
                                             <span class="out-of-stock-message text-danger font-weight-bold">Out of Stock</span>
                                         <% } else { %>
-                                            <!-- <a href="#" id="addToCartBtn" class="btn-product btn-cart" onclick="addToCart('<%=product._id%>', '<%=userId%>')">
-                                                <span>Add to Cart</span>
-                                            </a> -->
-                                            <a href="/cart" id="addToCartBtn" class="btn-product btn-cart">
+                                            <a href="#" id="addToCartBtn" class="btn-product btn-cart" onclick="addToCart('<%=product._id%>', '<%=userId%>')">
                                                 <span>Add to Cart</span>
                                             </a>
+                                            <!-- <a href="/cart" id="addToCartBtn" class="btn-product btn-cart">
+                                                <span>Add to Cart</span>
+                                            </a> -->
                                         <% } %>
                                     
                                         <a href="/cart" id="viewCartBtn" class="btn-product btn-cart" style="display: none;">
@@ -313,10 +313,13 @@
                 if (responseData.isProductInCart) {
                     addToCartBtn.style.display = 'none';
                     viewCartBtn.style.display = 'inline-block';
+                    
+                    
                 } else {
                     addToCartBtn.style.display = 'none';  // Assuming you want to hide the "Add to Cart" button after adding
                     viewCartBtn.style.display = 'inline-block';
                 }
+               
                 
             } catch (error) {
                 console.error('Error adding to cart:', error);
@@ -330,48 +333,52 @@
             if (isLoggedIn) {
                 // If user is logged in, proceed with adding to cart
                 addToCart();
+                
             } else {
                 // If user is not logged in, show the login modal
                 $('#loginModal').modal('show');
             }
         });
+
     
         // Initial check on page load
-        checkCartStatus();  // Call the checkCartStatus function to set the initial button display
+       // checkCartStatus();  // Call the checkCartStatus function to set the initial button display
     });
     
-    // Function to check cart status and update button display
-    const checkCartStatus = async () => {
-        try {
-            const productId = '<%= product._id %>';  // Declare productId within the function scope
-            const userId = '<%= userId %>';
-            const response = await fetch('/checkcart', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ productId, userId })
-            });
+    // // Function to check cart status and update button display
+    // const checkCartStatus = async () => {
+    //     try {
+    //         const productId = '<%= product._id %>';  // Declare productId within the function scope
+    //         const userId = '<%= userId %>';
+    //         const response = await fetch('/checkcart', {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json'
+    //             },
+    //             body: JSON.stringify({ productId, userId })
+    //         });
     
-            if (!response.ok) {
-                throw new Error('Failed to check cart status');
-            }
+    //         if (!response.ok) {
+    //             throw new Error('Failed to check cart status');
+    //         }
     
-            const data = await response.json();
+    //         const data = await response.json();
     
-            if (data.isProductInCart) {
-                console.log('Product is in the cart');
-                addToCartBtn.style.display = 'none';
-                viewCartBtn.style.display = 'inline-block';
-            } else {
-                console.log('Product is NOT in the cart');
-                addToCartBtn.style.display = 'inline-block';
-                viewCartBtn.style.display = 'none';
-            }
-        } catch (error) {
-            console.error('Error checking cart status:', error);
-        }
-    };
+    //         if (data.isProductInCart) {
+    //             console.log('Product is in the cart');
+    //             addToCartBtn.style.display = 'none';
+    //             viewCartBtn.style.display = 'inline-block';
+                
+    //         } else {
+    //             console.log('Product is NOT in the cart');
+    //             addToCartBtn.style.display = 'inline-block';
+    //             viewCartBtn.style.display = 'none';
+                
+    //         }
+    //     } catch (error) {
+    //         console.error('Error checking cart status:', error);
+    //     }
+    // };
     </script>
     
     
