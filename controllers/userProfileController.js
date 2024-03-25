@@ -14,7 +14,7 @@ const userProfile = async (req, res) => {
         // const email = req.session.email;
         // const username = req.session.name;
         const wallet = await Wallet.findOne({ user: userId });
-        console.log('wallet:',wallet);
+        //console.log('wallet:',wallet);
 
         const order = await Order.find({userId: userId}).populate({
             path: 'products.productid',
@@ -136,7 +136,7 @@ const loadOrderDetails = async (req, res) => {
             model: Products,
             select: 'name price quantity image orderStatus' // Select the fields you need from the Product model
         });
-       console.log("order:",order);
+       //console.log("order:",order);
         
 
         //console.log(order);

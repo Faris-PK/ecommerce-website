@@ -114,6 +114,21 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="widget widget-collapsible">
+                                    <h3 class="widget-title">Sort By</h3>
+                                    <div class="collapse show" id="widget-6">
+                                        <div class="widget-body">
+                                            <select id="sort-select" class="form-control">
+                                                <option value="price_asc">Price: Low to High</option>
+                                                <option value="price_desc">Price: High to Low</option>
+                                                <option value="name_asc">Name: A to Z</option>
+                                                <option value="name_desc">Name: Z to A</option>
+                                            </select>
+                                            <button id="apply-sort-filter" class="btn btn-primary btn-block">Apply Sort</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
                             </div>
                         </div>
                     </aside>
@@ -227,6 +242,36 @@ document.addEventListener('DOMContentLoaded', function() {
     applySearchFilterButton.addEventListener('click', function(event) {
         event.preventDefault(); // Prevent the default form submission
         updateProductList();
+    });
+});
+
+
+//For sorting 
+
+// Apply sort filter when the "Apply Sort" button is clicked
+const applySortFilterButton = document.getElementById('apply-sort-filter');
+applySortFilterButton.addEventListener('click', function(event) {
+    event.preventDefault(); // Prevent the default form submission
+    
+    const sortSelect = document.getElementById('sort-select');
+    const sortValue = sortSelect.value;
+    
+    const queryParams = new URLSearchParams(window.location.search);
+    queryParams.set('sort', sortValue);
+
+    const newUrl = '?' + queryParams.toString();
+
+    // Use AJAX to fetch the sorted data without reloading the page
+    $.ajax({
+        url: newUrl,
+        type: 'GET',
+        success: function(data) {
+            // Replace the existing product list with the sorted one
+            $('#product-list-container').html(data);
+        },
+        error: function(error) {
+            console.error('Error fetching sorted data:', error);
+        }
     });
 });
 

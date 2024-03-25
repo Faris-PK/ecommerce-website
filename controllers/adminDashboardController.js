@@ -215,7 +215,7 @@ const filterDashboard = async (req, res) => {
 const loadSalesReport = async (req,res) =>{
     try {
         const orders = await Orders.find().populate('userId').populate('products.productid');
-        //console.log('Orders from salesreport:',orders);
+       // console.log('Orders from salesreport:',orders);
         res.render('salesReport',{orders}) 
     } catch (error) {
       console.log(error);  
@@ -231,7 +231,12 @@ const generateSalesReport = async (req,res) =>{
         const startDateTime = new Date(`${startDate}T00:00:00.000Z`);
         const endDateTime = new Date(`${endDate}T23:59:59.999Z`);
 
-        const orders = await Orders.find({date:{$gte:startDateTime,$lte:endDateTime}}).populate('userId').populate('products.productid');
+        const orders = await Orders.find({
+            date: { $gte: startDateTime, $lte: endDateTime },
+            'products.orderStatus': 'Delivered' // Add this query condition to filter by orderStatus
+        }).populate('userId').populate('products.productid');
+
+        //console.log('orders from salesReport:',orders);
         res.render('salesReport',{orders})
     } catch (error) {
         console.error("Error generating sales report:", error);

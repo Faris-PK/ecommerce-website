@@ -506,7 +506,7 @@ const submitForgotPassword = async (req, res) => {
         })
 
         // Send the reset password email with the token link
-        const resetLink = `http://localhost:4000/reset-password/${token}`;
+        const resetLink = `https://decoraa.shop/reset-password/${token}`;
         const mailOptions = {
             from: 'faripk369@gmail.com',
             to: email,
@@ -658,6 +658,81 @@ const updatePassword = async (req, res) => {
 const ITEMS_PER_PAGE_SHOP = 9
 
 
+// const loadAllProducts = async (req, res) => {
+//     const page = parseInt(req.query.page) || 1;
+//     try {
+//         const categoriesQueryParam = req.query.categories;
+//         const minPrice = parseInt(req.query.minPrice) || 0;
+//         const maxPrice = parseInt(req.query.maxPrice) || 100000; // Assuming 1000 is the maximum price
+//         const searchTerm = req.query.search;
+
+//         let filter = { is_listed: true };
+
+//         if (categoriesQueryParam) {
+//             const categoryIds = categoriesQueryParam.split(',');
+//             filter.category = { $in: categoryIds };
+//         }
+
+//         // Add price range filter
+//         filter.price = { $gte: minPrice, $lte: maxPrice };
+
+//         if (searchTerm) {
+//             // Assuming 'name' is the field you want to search in
+//             // Adjust this according to your schema
+//             filter.$or = [
+//                 { name: { $regex: searchTerm, $options: 'i' } },
+//                 // Add more fields here if you want to search in other fields
+//             ];
+//         }
+
+//         //Sort
+        
+//         let sort = {};
+//         const sortParam = req.query.sort;
+//         if (sortParam) {
+//             if (sortParam === 'price_asc') {
+//                 sort = { price: 1 };
+//             } else if (sortParam === 'price_desc') {
+//                 sort = { price: -1 };
+//             } else if (sortParam === 'name_asc') {
+//                 sort = { name: 1 };
+//             } else if (sortParam === 'name_desc') {
+//                 sort = { name: -1 };
+//             }
+//         }
+//         //console.log('sort: ',sort);
+
+//         const totalItems = await Products.countDocuments(filter);
+//         const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE_SHOP);
+//         const categories = await Category.find({is_listed: true});
+
+//         let products = await Products.find(filter)
+//             .populate('category')
+//             .populate('offer') // Populate the 'offer' field
+//             .sort(sort) // Apply sorting
+//             .skip((page - 1) * ITEMS_PER_PAGE_SHOP)
+//             .limit(ITEMS_PER_PAGE_SHOP);
+
+
+//             // Determine the best offer for each product
+//             products = await Promise.all(products.map(async (product) => {
+//                 const { bestOffer, bestOfferType } = await product.determineBestOffer();
+//                 return { ...product.toObject(), bestOffer, bestOfferType };
+//             })); 
+            
+            
+
+//         if (req.xhr) {
+//             res.render("partials/productlist", { products, currentPage: page, totalPages });
+//         } else {
+//             res.render("user/allProducts", { products, currentPage: page, totalPages, categories });
+//         }
+
+//     } catch (error) {
+//         console.log(error);
+//         res.status(500).send('Internal Server Error');
+//     }
+// }
 const loadAllProducts = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     try {
@@ -685,24 +760,45 @@ const loadAllProducts = async (req, res) => {
             ];
         }
 
+        // Sort
+        let sort = {};
+        const sortParam = req.query.sort;
+        if (sortParam) {
+            if (sortParam === 'price_asc') {
+                sort = { price: 1 };
+            } else if (sortParam === 'price_desc') {
+                sort = { price: -1 };
+            } else if (sortParam === 'name_asc') {
+                sort = { name: 1 };
+            } else if (sortParam === 'name_desc') {
+                sort = { name: -1 };
+            }
+        }
+
         const totalItems = await Products.countDocuments(filter);
         const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE_SHOP);
         const categories = await Category.find({is_listed: true});
 
-        let products = await Products.find(filter)
+        // Determine if pagination should be applied
+        const applyPagination = !sortParam; // If sortParam is not provided, apply pagination
+
+        let productsQuery = Products.find(filter)
             .populate('category')
             .populate('offer') // Populate the 'offer' field
-            .skip((page - 1) * ITEMS_PER_PAGE_SHOP)
-            .limit(ITEMS_PER_PAGE_SHOP);
+            .sort(sort); // Apply sorting
 
+        // Apply pagination if necessary
+        if (applyPagination) {
+            productsQuery = productsQuery.skip((page - 1) * ITEMS_PER_PAGE_SHOP).limit(ITEMS_PER_PAGE_SHOP);
+        }
 
-            // Determine the best offer for each product
-            products = await Promise.all(products.map(async (product) => {
-                const { bestOffer, bestOfferType } = await product.determineBestOffer();
-                return { ...product.toObject(), bestOffer, bestOfferType };
-            })); 
-            
-            
+        let products = await productsQuery;
+
+        // Determine the best offer for each product
+        products = await Promise.all(products.map(async (product) => {
+            const { bestOffer, bestOfferType } = await product.determineBestOffer();
+            return { ...product.toObject(), bestOffer, bestOfferType };
+        })); 
 
         if (req.xhr) {
             res.render("partials/productlist", { products, currentPage: page, totalPages });
@@ -715,6 +811,7 @@ const loadAllProducts = async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 }
+
 
 
 module.exports = {
