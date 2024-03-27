@@ -389,18 +389,18 @@
                                 if (responseData.message) {
                                     $("#warningMessage").text(responseData.message).css({"color": "red", "display": "block"});
                                 } else {
-                                    $("#warningMessage").text("Failed to place order. Please try again.").css({"color": "red", "display": "block"});
+                                    $("#warningMessage").text("Failed to place order.").css({"color": "red", "display": "block"});
                                 }
                             }
                         },
                         error: function(jqXHR, textStatus, errorThrown) {
                             console.error("Error placing order:", errorThrown);
-                            $("#warningMessage").text("Failed to place order. Please try again.").css({"color": "red", "display": "block"});
+                            $("#warningMessage").text("Failed to place order. Add your Address.").css({"color": "red", "display": "block"});
                         }
                     });
                 } catch (error) {
                     console.error("Error placing order:", error);
-                    $("#warningMessage").text("Failed to place order. Please try again.").css({"color": "red", "display": "block"});
+                    $("#warningMessage").text("Failed to place order. Please try again.3").css({"color": "red", "display": "block"});
                 }
 
             } 
@@ -436,7 +436,7 @@
                         window.location.href = `/orderconfirmation/${hashedOrderId}`;
                     } else {
                         
-                        document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
+                        document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.1";
                         document.getElementById("warningMessage").style.color = "red"; 
                         document.getElementById("warningMessage").style.display = "block";
                     }
@@ -444,7 +444,7 @@
                     } catch (error) {
                         console.error("Error placing order:", error);
                         
-                        document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.";
+                        document.getElementById("warningMessage").textContent = "Failed to place order. Please try again.2";
                         document.getElementById("warningMessage").style.color = "red"; 
                         document.getElementById("warningMessage").style.display = "block";
                     }
