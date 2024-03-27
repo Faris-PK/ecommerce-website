@@ -277,6 +277,9 @@
 
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
         const productId = '<%= product._id %>';
@@ -288,43 +291,69 @@
     
         // Function to add product to cart
         const addToCart = async () => {
-            const Quantity = document.getElementById('qty').value;
-            const data = {
-                productId: productId,
-                userId: userId,
-                quantity: Quantity
-            };
-    
-            try {
-                const response = await fetch('/addtocart', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
+    const Quantity = document.getElementById('qty').value;
+    const data = {
+        productId: productId,
+        userId: userId,
+        quantity: Quantity
+    };
+
+    try {
+        const response = await fetch('/addtocart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        const responseData = await response.json();
+
+        if (!response.ok) {
+            // Check if the response status is 400
+            if (response.status === 400) {
+                // Display the error message using SweetAlert
+                Swal.fire({
+                    position: 'center',
+                    icon: 'error',
+                    title: `${responseData.error}`,
+                    showConfirmButton: false,
+                    timer: 1700,
                 });
-    
-                if (!response.ok) {
-                    throw new Error('Failed to add product to cart');
-                }
-    
-                const responseData = await response.json();
-                // After adding to cart, update the button text
-                if (responseData.isProductInCart) {
-                    addToCartBtn.style.display = 'none';
-                    viewCartBtn.style.display = 'inline-block';
-                    
-                    
-                } else {
-                    addToCartBtn.style.display = 'none';  // Assuming you want to hide the "Add to Cart" button after adding
-                    viewCartBtn.style.display = 'inline-block';
-                }
-               
-                
-            } catch (error) {
-                console.error('Error adding to cart:', error);
+            } else {
+                throw new Error('Failed to add product to cart');
             }
-        };
+        } else {
+            // Display the success message using SweetAlert
+            Swal.fire({
+                position: 'center',
+                icon: 'success',
+                title: `${responseData.message}`,
+                showConfirmButton: false,
+                timer: 1700,
+            });
+
+            // After adding to cart, update the button text
+            if (responseData.isProductInCart) {
+                addToCartBtn.style.display = 'none';
+                viewCartBtn.style.display = 'inline-block';
+            } else {
+                addToCartBtn.style.display = 'none';
+                viewCartBtn.style.display = 'inline-block';
+            }
+        }
+    } catch (error) {
+        console.error('Error adding to cart:', error);
+        // Display a generic error message using SweetAlert
+        Swal.fire({
+            position: 'center',
+            icon: 'error',
+            title: 'Failed to add product to cart',
+            showConfirmButton: false,
+            timer: 1700,
+        });
+    }
+};
     
         // Add event listener for the "Add to Cart" button
         addToCartBtn.addEventListener('click', () => {
@@ -384,32 +413,56 @@
     
     <!-- Add to wishlist -->
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const addToWishlistBtn = document.getElementById('addToWishlistBtn');
+   document.addEventListener('DOMContentLoaded', () => {
+    const addToWishlistBtn = document.getElementById('addToWishlistBtn');
 
-        addToWishlistBtn.addEventListener('click', async () => {
-            try {
-                const productId = '<%= product._id %>';
-                const userId = '<%= userId %>';
-                const response = await fetch('/addtowishlist', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ productId, userId })
+    addToWishlistBtn.addEventListener('click', async () => {
+        try {
+            const productId = '<%= product._id %>';
+            const userId = '<%= userId %>';
+            const response = await fetch('/addtowishlist', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ productId, userId })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                // Display the error message using SweetAlert
+                Swal.fire({
+                    position: 'center',
+                    icon: 'error',
+                    title: `${errorData.error || errorData.message}`,
+                    showConfirmButton: false,
+                    timer: 1700,
                 });
-
-                if (!response.ok) {
-                    throw new Error('Failed to add product to wishlist');
-                }
-
+            } else {
                 const responseData = await response.json();
-                // console.log(responseData.message);
-            } catch (error) {
-                console.error('Error adding to wishlist:', error);
+                // Display the success message using SweetAlert
+                Swal.fire({
+                    position: 'center',
+                    icon: 'success',
+                    title: `${responseData.message}`,
+                    showConfirmButton: false,
+                    timer: 1700,
+                });
             }
-        });
+        } catch (error) {
+            console.error('Error adding to wishlist:', error);
+            // Display a generic error message using SweetAlert
+            Swal.fire({
+                position: 'center',
+                icon: 'error',
+                title: 'Failed to add product to wishlist',
+                showConfirmButton: false,
+                timer: 1700,
+            });
+        }
     });
+});
+
 </script>
 
     <!-- Plugins JS File -->

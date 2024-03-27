@@ -24,6 +24,9 @@ const loadWishlist = async (req,res) => {
 const addToWishlist = async (req, res) => {
     try {
         const { productId, userId } = req.body;
+        if (!userId ) {
+            return res.status(400).json({ error: 'User is not login' });
+        }
 
         // Check if the product already exists in the wishlist
         const existingProduct = await Wishlist.findOne({ userid: userId, 'product.productid': productId });

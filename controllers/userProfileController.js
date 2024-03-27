@@ -134,7 +134,7 @@ const loadOrderDetails = async (req, res) => {
         const order = await Order.findOne({ _id: orderId, userId: userId }).populate({
             path: 'products.productid',
             model: Products,
-            select: 'name price quantity image orderStatus' // Select the fields you need from the Product model
+            select: 'name price quantity image orderStatus offerDiscount' // Select the fields you need from the Product model
         });
        //console.log("order:",order);
         

@@ -217,6 +217,15 @@ h3, h6 {
                         <td colspan="2">Coupon Discount</td>
                         <td class="text-danger text-end">-₹<%=order.couponDiscount %></td>
                     </tr>
+                    <% let totalOfferDiscount = 0 %>
+                    <% order.products.forEach(product => { %>
+                        <% totalOfferDiscount += product.offerDiscount %>
+                    <% }) %>
+
+                    <tr>
+                        <td colspan="2">Offer Discount</td>
+                        <td class="text-danger text-end">-₹<%= totalOfferDiscount %></td>
+                    </tr>
                     <tr class="fw-bold">
                         <td colspan="2">GRAND TOTAL</td>
                         <td class="text-end">₹<%=order.grandTotal %></td>
