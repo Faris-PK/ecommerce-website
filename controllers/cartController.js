@@ -675,7 +675,7 @@ const continueVerifyPayment = async (req, res) => {
             // Iterate over each product in the matchedOrder
             for (let product of matchedOrder.products) {
                 // Find the corresponding product in the product model
-                const productToUpdate = await Product.findOne({ _id: product.productId });
+                const productToUpdate = await Product.findOne({ _id: product.productid });
 
                 if (!productToUpdate) {
                     throw new Error(`Product with ID ${product.productId} not found`);
